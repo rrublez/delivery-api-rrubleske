@@ -31,9 +31,24 @@ cd delivery-api-rrubleske
 4. Acesse: http://localhost:8080/health
 
 ## Endpoints
+
+### Endpoints Principais
 - **GET /health** - Status da aplicação (inclui versão Java e status do serviço)
 - **GET /info** - Informações da aplicação e desenvolvedor
 - **GET /h2-console** - Console do banco H2 (http://localhost:8080/h2-console)
+
+### Endpoints de Demonstração (new Java Features)
+- **GET /demo/pattern-matching?type=string&value=hello** - Demonstra Pattern Matching (Java 17+)
+  - Parâmetros: `type` (string/int/double), `value` (valor a converter)
+  - Exemplo: `?type=int&value=-42`
+  
+- **GET /demo/virtual-threads?tasks=5** - Demonstra Virtual Threads (Java 21)
+  - Parâmetro: `tasks` (número de threads virtuais a criar)
+  - Executa múltiplas tarefas em paralelo usando threads leves
+  
+- **GET /demo/threads-comparison?tasks=10** - Compara Virtual Threads vs Platform Threads
+  - Parâmetro: `tasks` (número de tarefas a executar)
+  - Mostra a diferença de performance entre os dois tipos
 
 ## Configuração
 - **Porta:** 8080
