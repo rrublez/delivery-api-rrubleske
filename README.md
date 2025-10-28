@@ -1,25 +1,55 @@
-# Arquitetura de Sistemas 
-# API REST Full com Java Springboot
+# Delivery Tech API
 
-## Contexto e Problematização
-Você foi contratado como desenvolvedor júnior pela startup DeliveryTech, uma nova empresa que quer competir com iFood e Uber Eats. O CTO da empresa te deu a primeira missão:
-"Precisamos começar do zero. Temos uma ideia revolucionária para delivery, mas precisamos de uma base sólida.
-Sua missão é preparar o ambiente de desenvolvimento e criar a estrutura inicial do nosso sistema.
-#### Lembre-se: grandes projetos começam com fundações bem construídas!"
+Sistema de delivery desenvolvido com Spring Boot e Java 21.
 
+## Tecnologias
+- **Java 21 LTS** (versão mais recente)
+- Spring Boot 3.4.11
+- Spring Web
+- Spring Data JPA
+- H2 Database
+- Maven
+- Logback (Logging)
 
-## Cenário Real
-Imagine que você está no primeiro dia de trabalho em uma startup. O time de produto já definiu que o sistema deve
-- ⚖️ Ser escalável (começar pequeno, crescer grande)
-- 🛠️ Usar tecnologias modernas e confiáveis (JDK 21 LTS)
-- 🧑‍💻 Ter um ambiente de desenvolvimento padronizado
-- 🤝 Permitir que outros desenvolvedores entrem no projeto facilmente
+## Recursos Modernos Utilizados
+- Records (Java 14+)
+- Text Blocks (Java 15+)
+- Pattern Matching (Java 17+)
+- Virtual Threads (Java 21)
 
-## Sua Missão
-Como desenvolvedor responsável pela arquitetura inicial, você deve
-1. 🏗️ Preparar o ambiente de desenvolvimento (como um arquiteto prepara o terreno)
-2. 🧱 Criar a estrutura base do projeto (como construir as fundações de um prédio)
-3. 🔧 Configurar as ferramentas essenciais (como instalar a infraestrutura básica)
-4. ✅ Validar que tudo funciona (como fazer o primeiro teste de qualidade)
-5. 📚 Documentar o processo (para que outros desenvolvedores possam
+## Como executar
+1. **Pré-requisitos:** JDK 21 instalado
+2. Clone o repositório
+```bash
+git clone https://github.com/rrublez/delivery-api-rrubleske.git
+cd delivery-api-rrubleske
+```
+3. Execute: 
+```bash
+./mvnw spring-boot:run
+```
+4. Acesse: http://localhost:8080/health
+
+## Endpoints
+- **GET /health** - Status da aplicação (inclui versão Java e status do serviço)
+- **GET /info** - Informações da aplicação e desenvolvedor
+- **GET /h2-console** - Console do banco H2 (http://localhost:8080/h2-console)
+
+## Configuração
+- **Porta:** 8080
+- **Banco:** H2 em memória
+- **Profile:** development
+- **Logs:** Salvos em `logs/app.log` com rotação automática
+
+## Logging
+A aplicação utiliza **Logback** para gerenciamento de logs:
+- Logs no console (coloridos)
+- Logs em arquivo com rotação (1MB por arquivo, máximo 2 dias)
+- Logs detalhados de requisições HTTP (método, URL, status, tempo de execução)
+- Logs de SQL (DEBUG)
+
+## Desenvolvedor
+**Rafael Rubleske** - Análise e Desenvolvimento de Sistemas - UniRitter
+
+Desenvolvido com **JDK 21** e **Spring Boot 3.4.11**
 

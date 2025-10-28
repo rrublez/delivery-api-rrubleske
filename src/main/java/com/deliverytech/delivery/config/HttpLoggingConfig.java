@@ -24,35 +24,25 @@ public class HttpLoggingConfig implements WebMvcConfigurer {
         @Override
         public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) 
                 throws Exception {
-            long startTime = System.currentTimeMillis();
-            request.setAttribute("startTime", startTime);
-
-            log.info("=== INÍCIO DA REQUISIÇÃO ===");
-            log.info("Método: {}", request.getMethod());
-            log.info("URL: {}", request.getRequestURI());
-            log.info("Query String: {}", request.getQueryString());
-            log.info("Content-Type: {}", request.getContentType());
-            log.info("Remote Address: {}", request.getRemoteAddr());
-
+            request.setAttribute("startTime", System.currentTimeMillis());
+            log.info("→ {} {}", request.getMethod(), request.getRequestURI());
             return true;
         }
 
         @Override
         public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
                 @NonNull Object handler, @Nullable Exception ex) throws Exception {
-            long startTime = (long) request.getAttribute("startTime");
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("=== FIM DA REQUISIÇÃO ===");
-            log.info("Status: {}", response.getStatus());
-            log.info("Content-Type: {}", response.getContentType());
-            log.info("Tempo de execução: {} ms", duration);
+            long duration = System.currentTimeMillis() - (long) request.getAttribute("startTime");
             
             if (ex != null) {
-                log.error("Erro na requisição: ", ex);
+                log.error("← {} {} [{}] {}ms - ERROR: {}", 
+                    request.getMethod(), request.getRequestURI(), 
+                    response.getStatus(), duration, ex.getMessage());
+            } else {
+                log.info("← {} {} [{}] {}ms", 
+                    request.getMethod(), request.getRequestURI(), 
+                    response.getStatus(), duration);
             }
-            
-            log.info("=== ================================== ===");
         }
     }
 }
