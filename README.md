@@ -138,32 +138,36 @@ sequenceDiagram
 ### Padrões e Princípios de Arquitetura
 
 ```mermaid
-mindmap
-  root((Delivery API))
-    Padrões de Projeto
-      MVC
-      DTO
-      Repository
-      Builder
-      Dependency Injection
-    Princípios SOLID
-      Single Responsibility
-      Open/Closed
-      Liskov Substitution
-      Interface Segregation
-      Dependency Inversion
-    Stack Tecnológico
-      Spring Framework
-      Hibernate JPA
-      H2 Database
-      Lombok
-      Jakarta Validation
-    Features & Capacidades
-      Validação JSR-380
-      Logging Estruturado
-      Persistência de Dados
-      Transações Atômicas
-      Múltiplos Endereços
+graph TB
+    A["🏗️ DELIVERY API"]
+    
+    B["📋 PADRÕES"]
+    C["⭐ PRINCÍPIOS"]
+    D["🛠️ STACK"]
+    
+    A --> B
+    A --> C
+    A --> D
+    
+    B --> B1["MVC • DTO • Repository"]
+    B --> B2["Builder • Dependency Injection"]
+    
+    C --> C1["SRP • OCP • LSP"]
+    C --> C2["ISP • DIP • SOLID"]
+    
+    D --> D1["Spring • Hibernate • H2"]
+    D --> D2["Lombok • Jakarta Validation"]
+    
+    style A fill:#2C3E50,stroke:#000,stroke-width:3px,color:#ECF0F1,font-size:16px
+    style B fill:#3498DB,stroke:#2980B9,stroke-width:2px,color:#fff
+    style C fill:#E74C3C,stroke:#C0392B,stroke-width:2px,color:#fff
+    style D fill:#27AE60,stroke:#229954,stroke-width:2px,color:#fff
+    style B1 fill:#85C1E9,stroke:#3498DB,stroke-width:1px,color:#000
+    style B2 fill:#85C1E9,stroke:#3498DB,stroke-width:1px,color:#000
+    style C1 fill:#F5B7B1,stroke:#E74C3C,stroke-width:1px,color:#000
+    style C2 fill:#F5B7B1,stroke:#E74C3C,stroke-width:1px,color:#000
+    style D1 fill:#A9DFBF,stroke:#27AE60,stroke-width:1px,color:#000
+    style D2 fill:#A9DFBF,stroke:#27AE60,stroke-width:1px,color:#000
 ```
 
 ---
