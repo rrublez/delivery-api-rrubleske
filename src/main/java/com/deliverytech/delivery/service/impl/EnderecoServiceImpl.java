@@ -126,13 +126,9 @@ public class EnderecoServiceImpl implements EnderecoService {
         log.info("Deletando endereço com ID: {}", id);
 
         Endereco endereco = enderecoRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Endereço não encontrado: {}", id);
-                    return new ResourceNotFoundException("Endereço não encontrado");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
 
         enderecoRepository.delete(endereco);
-        log.info("Endereço deletado com sucesso: {}", id);
     }
 
     @Override

@@ -1,5 +1,4 @@
 package com.deliverytech.delivery.service.impl;
-import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.CategoriaProdutoRequestDTO;
 import com.deliverytech.delivery.dto.CategoriaProdutoResponseDTO;

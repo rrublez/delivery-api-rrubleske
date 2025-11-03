@@ -101,13 +101,9 @@ public class RamoEstabelecimentoServiceImpl implements RamoEstabelecimentoServic
         log.info("Deletando ramo com ID: {}", id);
 
         RamoEstabelecimento ramo = ramoRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Ramo não encontrado: {}", id);
-                    return new ResourceNotFoundException("Ramo não encontrado");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Ramo não encontrado"));
 
         ramoRepository.delete(ramo);
-        log.info("Ramo deletado com sucesso: {}", id);
     }
 
     /**

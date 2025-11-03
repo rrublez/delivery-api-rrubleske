@@ -272,24 +272,15 @@ public class PedidoServiceImpl implements PedidoService {
 
         // 1. Validar se cliente existe
         Cliente cliente = clienteRepository.findById(pedidoRequestDTO.getClienteId())
-                .orElseThrow(() -> {
-                    log.warn("Cliente não encontrado: {}", pedidoRequestDTO.getClienteId());
-                    return new IllegalArgumentException("Cliente não encontrado com ID: " + pedidoRequestDTO.getClienteId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + pedidoRequestDTO.getClienteId()));
 
         // 2. Validar se estabelecimento existe
         Estabelecimento estabelecimento = estabelecimentoRepository.findById(pedidoRequestDTO.getEstabelecimentoId())
-                .orElseThrow(() -> {
-                    log.warn("Estabelecimento não encontrado: {}", pedidoRequestDTO.getEstabelecimentoId());
-                    return new IllegalArgumentException("Estabelecimento não encontrado com ID: " + pedidoRequestDTO.getEstabelecimentoId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Estabelecimento não encontrado com ID: " + pedidoRequestDTO.getEstabelecimentoId()));
 
         // 3. Validar se endereço existe
         Endereco endereco = enderecoRepository.findById(pedidoRequestDTO.getEnderecoId())
-                .orElseThrow(() -> {
-                    log.warn("Endereço não encontrado: {}", pedidoRequestDTO.getEnderecoId());
-                    return new IllegalArgumentException("Endereço não encontrado com ID: " + pedidoRequestDTO.getEnderecoId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado com ID: " + pedidoRequestDTO.getEnderecoId()));
 
         // 3.1 Validar se o endereço pertence ao cliente
         if (!cliente.getEnderecos().contains(endereco)) {

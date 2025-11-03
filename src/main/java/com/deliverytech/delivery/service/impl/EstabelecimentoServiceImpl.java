@@ -152,13 +152,9 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         log.info("Deletando estabelecimento com ID: {}", id);
 
         Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Estabelecimento não encontrado: {}", id);
-                    return new ResourceNotFoundException("Estabelecimento não encontrado");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Estabelecimento não encontrado"));
 
         estabelecimentoRepository.delete(estabelecimento);
-        log.info("Estabelecimento deletado com sucesso: {}", id);
     }
 
     @Override

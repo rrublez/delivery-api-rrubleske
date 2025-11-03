@@ -138,13 +138,9 @@ public class ProdutoServiceImpl implements ProdutoService {
         log.info("Deletando produto com ID: {}", id);
 
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Produto não encontrado: {}", id);
-                    return new ResourceNotFoundException("Produto não encontrado");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         produtoRepository.delete(produto);
-        log.info("Produto deletado com sucesso: {}", id);
     }
 
     /**
