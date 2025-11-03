@@ -34,3 +34,7 @@ build/
 .mvn/
 logs/
 Docs/
+
+### H2 Database ###
+data/
+
