@@ -290,6 +290,12 @@ public class PedidoServiceImpl implements PedidoService {
                     return new IllegalArgumentException("Endereço não encontrado com ID: " + pedidoRequestDTO.getEnderecoId());
                 });
 
+        // 3.1 Validar se o endereço pertence ao cliente
+        if (!cliente.getEnderecos().contains(endereco)) {
+            log.warn("Endereço {} não pertence ao cliente {}", pedidoRequestDTO.getEnderecoId(), pedidoRequestDTO.getClienteId());
+            throw new IllegalArgumentException("O endereço informado não pertence ao cliente. Cliente pode ter até 3 endereços diferentes.");
+        }
+
         // 4. Processar itens do pedido
         List<ItemPedido> itensProcessados = new ArrayList<>();
         BigDecimal valorTotalPedido = BigDecimal.ZERO;

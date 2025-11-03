@@ -39,6 +39,10 @@ public class Pedido {
     @JoinColumn(name = "estabelecimento_id", nullable = false)
     private Estabelecimento estabelecimento;
 
+    /**
+     * Endereço de entrega do pedido.
+     * Este endereço deve pertencer à lista de endereços do cliente.
+     */
     @ManyToOne
     @JoinColumn(name = "endereco_id", nullable = false)
     private Endereco endereco;

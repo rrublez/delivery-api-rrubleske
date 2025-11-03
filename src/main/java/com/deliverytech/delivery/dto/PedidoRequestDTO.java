@@ -22,6 +22,11 @@ public class PedidoRequestDTO {
     @NotNull(message = "ID do estabelecimento não pode ser vazio")
     private String estabelecimentoId;
 
+    /**
+     * ID do endereço de entrega.
+     * Este endereço deve pertencer à lista de endereços do cliente.
+     * Um cliente pode ter até 3 endereços (ex: residência, namorada, trabalho).
+     */
     @NotNull(message = "ID do endereço de entrega não pode ser vazio")
     private String enderecoId;
 
@@ -30,4 +35,3 @@ public class PedidoRequestDTO {
     private List<ItemPedidoRequestDTO> itens;
 
 }
-

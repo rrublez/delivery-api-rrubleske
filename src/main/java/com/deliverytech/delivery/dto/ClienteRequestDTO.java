@@ -3,11 +3,14 @@ package com.deliverytech.delivery.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -34,7 +37,15 @@ public class ClienteRequestDTO {
     @Size(max = 500, message = "Observações não pode exceder 500 caracteres")
     private String observacoes;
 
+    /**
+     * Lista de endereços do cliente.
+     * - Mínimo: 1 endereço
+     * - Máximo: 3 endereços
+     * - Todos os endereços devem ser válidos
+     */
+    @NotEmpty(message = "Cliente deve ter pelo menos 1 endereço")
+    @Size(max = 3, message = "Cliente pode ter no máximo 3 endereços")
     @Valid
-    private EnderecoRequestDTO endereco;
+    private List<EnderecoRequestDTO> enderecos;
 
 }

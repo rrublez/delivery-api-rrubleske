@@ -5,8 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -48,8 +49,12 @@ public class Cliente {
 
     private String observacoes;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id")
-    private Endereco endereco;
+    /**
+     * Endereços do cliente (máximo 3).
+     * O cliente pode ter até 3 endereços diferentes (ex: casa, namorada, trabalho).
+     */
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cliente", orphanRemoval = true)
+    @Builder.Default
+    private List<Endereco> enderecos = new java.util.ArrayList<>();
 
 }

@@ -6,7 +6,6 @@ import com.deliverytech.delivery.dto.EnderecoResponseDTO;
 import com.deliverytech.delivery.entity.Cliente;
 import com.deliverytech.delivery.entity.Endereco;
 import com.deliverytech.delivery.repository.ClienteRepository;
-import com.deliverytech.delivery.repository.EnderecoRepository;
 import com.deliverytech.delivery.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
-    private final EnderecoRepository enderecoRepository;
 
     @Override
     public ClienteResponseDTO create(ClienteRequestDTO requestDTO) {
@@ -42,23 +40,13 @@ public class ClienteServiceImpl implements ClienteService {
             throw new IllegalArgumentException("Documento de identidade já cadastrado");
         }
 
-        Endereco endereco = null;
-        if (requestDTO.getEndereco() != null) {
-            log.info("Criando endereço associado ao cliente");
-            endereco = Endereco.builder()
-                    .id(UUID.randomUUID().toString())
-                    .rua(requestDTO.getEndereco().getRua())
-                    .numero(requestDTO.getEndereco().getNumero())
-                    .complemento(requestDTO.getEndereco().getComplemento())
-                    .cidade(requestDTO.getEndereco().getCidade())
-                    .estado(requestDTO.getEndereco().getEstado())
-                    .cep(requestDTO.getEndereco().getCep())
-                    .bairro(requestDTO.getEndereco().getBairro())
-                    .pontoReferencia(requestDTO.getEndereco().getPontoReferencia())
-                    .tipoEndereco(requestDTO.getEndereco().getTipoEndereco())
-                    .build();
+        // Validar número de endereços (máximo 3)
+        if (requestDTO.getEnderecos() == null || requestDTO.getEnderecos().isEmpty()) {
+            throw new IllegalArgumentException("Cliente deve ter pelo menos 1 endereço");
+        }
 
-            endereco = enderecoRepository.save(endereco);
+        if (requestDTO.getEnderecos().size() > 3) {
+            throw new IllegalArgumentException("Cliente pode ter no máximo 3 endereços");
         }
 
         Cliente cliente = Cliente.builder()
@@ -68,11 +56,33 @@ public class ClienteServiceImpl implements ClienteService {
                 .telefone(requestDTO.getTelefone())
                 .documentoIdentificacao(requestDTO.getDocumentoIdentificacao())
                 .observacoes(requestDTO.getObservacoes())
-                .endereco(endereco)
+                .enderecos(new java.util.ArrayList<>())
                 .build();
 
+        // Criar endereços associados ao cliente
+        for (var enderecoDTO : requestDTO.getEnderecos()) {
+            log.info("Criando endereço de tipo {} para o cliente", enderecoDTO.getTipoEndereco());
+            
+            Endereco endereco = Endereco.builder()
+                    .id(UUID.randomUUID().toString())
+                    .rua(enderecoDTO.getRua())
+                    .numero(enderecoDTO.getNumero())
+                    .complemento(enderecoDTO.getComplemento())
+                    .cidade(enderecoDTO.getCidade())
+                    .estado(enderecoDTO.getEstado())
+                    .cep(enderecoDTO.getCep())
+                    .bairro(enderecoDTO.getBairro())
+                    .pontoReferencia(enderecoDTO.getPontoReferencia())
+                    .tipoEndereco(enderecoDTO.getTipoEndereco())
+                    .cliente(cliente)  // Associar o cliente
+                    .build();
+
+            cliente.getEnderecos().add(endereco);
+        }
+
         Cliente clienteSalvo = clienteRepository.save(cliente);
-        log.info("Cliente criado com sucesso: {}", clienteSalvo.getId());
+        log.info("Cliente criado com sucesso com {} endereço(s): {}", 
+                clienteSalvo.getEnderecos().size(), clienteSalvo.getId());
 
         return toResponseDTO(clienteSalvo);
     }
@@ -137,14 +147,43 @@ public class ClienteServiceImpl implements ClienteService {
             throw new IllegalArgumentException("Documento de identidade já cadastrado");
         }
 
+        // Validar número de endereços (máximo 3)
+        if (requestDTO.getEnderecos() != null && requestDTO.getEnderecos().size() > 3) {
+            throw new IllegalArgumentException("Cliente pode ter no máximo 3 endereços");
+        }
+
         cliente.setNome(requestDTO.getNome());
         cliente.setEmail(requestDTO.getEmail());
         cliente.setTelefone(requestDTO.getTelefone());
         cliente.setDocumentoIdentificacao(requestDTO.getDocumentoIdentificacao());
         cliente.setObservacoes(requestDTO.getObservacoes());
 
+        // Atualizar endereços se fornecidos
+        if (requestDTO.getEnderecos() != null && !requestDTO.getEnderecos().isEmpty()) {
+            cliente.getEnderecos().clear();
+            
+            for (var enderecoDTO : requestDTO.getEnderecos()) {
+                Endereco endereco = Endereco.builder()
+                        .id(UUID.randomUUID().toString())
+                        .rua(enderecoDTO.getRua())
+                        .numero(enderecoDTO.getNumero())
+                        .complemento(enderecoDTO.getComplemento())
+                        .cidade(enderecoDTO.getCidade())
+                        .estado(enderecoDTO.getEstado())
+                        .cep(enderecoDTO.getCep())
+                        .bairro(enderecoDTO.getBairro())
+                        .pontoReferencia(enderecoDTO.getPontoReferencia())
+                        .tipoEndereco(enderecoDTO.getTipoEndereco())
+                        .cliente(cliente)
+                        .build();
+                
+                cliente.getEnderecos().add(endereco);
+            }
+        }
+
         Cliente clienteAtualizado = clienteRepository.save(cliente);
-        log.info("Cliente atualizado com sucesso: {}", id);
+        log.info("Cliente atualizado com sucesso com {} endereço(s): {}", 
+                clienteAtualizado.getEnderecos().size(), id);
 
         return toResponseDTO(clienteAtualizado);
     }
@@ -182,22 +221,20 @@ public class ClienteServiceImpl implements ClienteService {
      * @return DTO de resposta
      */
     private ClienteResponseDTO toResponseDTO(Cliente cliente) {
-        EnderecoResponseDTO enderecoDTO = null;
-
-        if (cliente.getEndereco() != null) {
-            enderecoDTO = EnderecoResponseDTO.builder()
-                    .id(cliente.getEndereco().getId())
-                    .rua(cliente.getEndereco().getRua())
-                    .numero(cliente.getEndereco().getNumero())
-                    .complemento(cliente.getEndereco().getComplemento())
-                    .cidade(cliente.getEndereco().getCidade())
-                    .estado(cliente.getEndereco().getEstado())
-                    .cep(cliente.getEndereco().getCep())
-                    .bairro(cliente.getEndereco().getBairro())
-                    .pontoReferencia(cliente.getEndereco().getPontoReferencia())
-                    .tipoEndereco(cliente.getEndereco().getTipoEndereco())
-                    .build();
-        }
+        List<EnderecoResponseDTO> enderecosDTO = cliente.getEnderecos().stream()
+                .map(endereco -> EnderecoResponseDTO.builder()
+                        .id(endereco.getId())
+                        .rua(endereco.getRua())
+                        .numero(endereco.getNumero())
+                        .complemento(endereco.getComplemento())
+                        .cidade(endereco.getCidade())
+                        .estado(endereco.getEstado())
+                        .cep(endereco.getCep())
+                        .bairro(endereco.getBairro())
+                        .pontoReferencia(endereco.getPontoReferencia())
+                        .tipoEndereco(endereco.getTipoEndereco())
+                        .build())
+                .collect(Collectors.toList());
 
         return ClienteResponseDTO.builder()
                 .id(cliente.getId())
@@ -206,7 +243,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .telefone(cliente.getTelefone())
                 .documentoIdentificacao(cliente.getDocumentoIdentificacao())
                 .observacoes(cliente.getObservacoes())
-                .endereco(enderecoDTO)
+                .enderecos(enderecosDTO)
                 .build();
     }
 }

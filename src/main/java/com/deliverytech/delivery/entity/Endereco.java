@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,9 +60,17 @@ public class Endereco {
     @Size(max = 50)
     private String pontoReferencia;
 
-    // Tipo do endereço, ex: Residencial ou Comercial
+    // Tipo do endereço, ex: Residencial, Namorada, Trabalho, etc.
     @NotNull(message = "Tipo de endereço não pode ser vazio")
     @Enumerated(EnumType.STRING)
     private TipoEndereco tipoEndereco;
+
+    /**
+     * Referência ao cliente proprietário deste endereço.
+     * Um cliente pode ter até 3 endereços diferentes.
+     */
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = true)
+    private Cliente cliente;
 
 }

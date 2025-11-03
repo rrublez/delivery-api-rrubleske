@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,6 +25,10 @@ public class ClienteResponseDTO {
 
     private String observacoes;
 
-    private EnderecoResponseDTO endereco;
+    /**
+     * Lista de endereços do cliente.
+     * Um cliente pode ter cadastrado até 3 endereços diferentes.
+     */
+    private List<EnderecoResponseDTO> enderecos;
 
 }
