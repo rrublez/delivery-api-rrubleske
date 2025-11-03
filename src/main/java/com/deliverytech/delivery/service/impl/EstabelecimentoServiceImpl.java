@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.EstabelecimentoRequestDTO;
 import com.deliverytech.delivery.dto.EstabelecimentoResponseDTO;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +42,10 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         RamoEstabelecimento ramo = ramoRepository.findById(requestDTO.getRamoId())
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", requestDTO.getRamoId());
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         Estabelecimento estabelecimento = Estabelecimento.builder()
-                .id(UUID.randomUUID().toString())
                 .nome(requestDTO.getNome())
                 .cnpj(requestDTO.getCnpj())
                 .telefone(requestDTO.getTelefone())
@@ -68,7 +67,7 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Estabelecimento não encontrado: {}", id);
-                    return new IllegalArgumentException("Estabelecimento não encontrado");
+                    return new ResourceNotFoundException("Estabelecimento não encontrado");
                 });
 
         return toResponseDTO(estabelecimento);
@@ -104,7 +103,7 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         ramoRepository.findById(ramoId)
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", ramoId);
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         return estabelecimentoRepository.findByRamoId(ramoId)
@@ -120,7 +119,7 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Estabelecimento não encontrado: {}", id);
-                    return new IllegalArgumentException("Estabelecimento não encontrado");
+                    return new ResourceNotFoundException("Estabelecimento não encontrado");
                 });
 
         // Validar CNPJ se foi alterado
@@ -133,7 +132,7 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         RamoEstabelecimento ramo = ramoRepository.findById(requestDTO.getRamoId())
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", requestDTO.getRamoId());
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         estabelecimento.setNome(requestDTO.getNome());
@@ -155,7 +154,7 @@ public class EstabelecimentoServiceImpl implements EstabelecimentoService {
         Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Estabelecimento não encontrado: {}", id);
-                    return new IllegalArgumentException("Estabelecimento não encontrado");
+                    return new ResourceNotFoundException("Estabelecimento não encontrado");
                 });
 
         estabelecimentoRepository.delete(estabelecimento);

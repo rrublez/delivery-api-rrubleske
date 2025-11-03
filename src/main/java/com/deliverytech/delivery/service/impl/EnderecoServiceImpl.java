@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.EnderecoRequestDTO;
 import com.deliverytech.delivery.dto.EnderecoResponseDTO;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +31,6 @@ public class EnderecoServiceImpl implements EnderecoService {
         log.info("Criando novo endereço na cidade: {}", requestDTO.getCidade());
 
         Endereco endereco = Endereco.builder()
-                .id(UUID.randomUUID().toString())
                 .rua(requestDTO.getRua())
                 .numero(requestDTO.getNumero())
                 .complemento(requestDTO.getComplemento())
@@ -57,7 +56,7 @@ public class EnderecoServiceImpl implements EnderecoService {
         Endereco endereco = enderecoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Endereço não encontrado: {}", id);
-                    return new IllegalArgumentException("Endereço não encontrado");
+                    return new ResourceNotFoundException("Endereço não encontrado");
                 });
 
         return toResponseDTO(endereco);
@@ -103,7 +102,7 @@ public class EnderecoServiceImpl implements EnderecoService {
         Endereco endereco = enderecoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Endereço não encontrado: {}", id);
-                    return new IllegalArgumentException("Endereço não encontrado");
+                    return new ResourceNotFoundException("Endereço não encontrado");
                 });
 
         endereco.setRua(requestDTO.getRua());
@@ -129,7 +128,7 @@ public class EnderecoServiceImpl implements EnderecoService {
         Endereco endereco = enderecoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Endereço não encontrado: {}", id);
-                    return new IllegalArgumentException("Endereço não encontrado");
+                    return new ResourceNotFoundException("Endereço não encontrado");
                 });
 
         enderecoRepository.delete(endereco);

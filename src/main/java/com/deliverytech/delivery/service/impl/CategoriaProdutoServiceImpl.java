@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.CategoriaProdutoRequestDTO;
 import com.deliverytech.delivery.dto.CategoriaProdutoResponseDTO;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -30,13 +30,12 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
     public CategoriaProdutoResponseDTO create(CategoriaProdutoRequestDTO requestDTO) {
         log.info("Criando nova categoria: {}", requestDTO.getCategoria());
 
-        if (categoriaProdutoRepository.existsByCategoriIgnoreCase(requestDTO.getCategoria())) {
+        if (categoriaProdutoRepository.existsByCategoriaIgnoreCase(requestDTO.getCategoria())) {
             log.error("Categoria já existe: {}", requestDTO.getCategoria());
             throw new IllegalArgumentException("Categoria já existe no sistema");
         }
 
         CategoriaProduto categoria = CategoriaProduto.builder()
-                .id(UUID.randomUUID().toString())
                 .categoria(requestDTO.getCategoria())
                 .descricao(requestDTO.getDescricao())
                 .build();
@@ -77,7 +76,7 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
     public List<CategoriaProdutoResponseDTO> findByCategoria(String categoria) {
         log.info("Buscando categorias com nome: {}", categoria);
 
-        return categoriaProdutoRepository.findByCategoriIgnoreCase(categoria)
+        return categoriaProdutoRepository.findByCategoriaIgnoreCase(categoria)
                 .stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
@@ -95,7 +94,7 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
 
         // Validar se novo nome já existe (e não é ele mesmo)
         if (!categoria.getCategoria().equals(requestDTO.getCategoria()) &&
-                categoriaProdutoRepository.existsByCategoriIgnoreCase(requestDTO.getCategoria())) {
+                categoriaProdutoRepository.existsByCategoriaIgnoreCase(requestDTO.getCategoria())) {
             log.error("Categoria já existe: {}", requestDTO.getCategoria());
             throw new IllegalArgumentException("Categoria já existe no sistema");
         }
@@ -126,7 +125,7 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
     @Override
     @Transactional(readOnly = true)
     public boolean categoriaExists(String categoria) {
-        return categoriaProdutoRepository.existsByCategoriIgnoreCase(categoria);
+        return categoriaProdutoRepository.existsByCategoriaIgnoreCase(categoria);
     }
 
     /**

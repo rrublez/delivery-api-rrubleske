@@ -19,7 +19,7 @@ public interface CategoriaProdutoRepository extends JpaRepository<CategoriaProdu
      * @param categoria nome da categoria
      * @return lista de categorias encontradas
      */
-    List<CategoriaProduto> findByCategoriIgnoreCase(String categoria);
+    List<CategoriaProduto> findByCategoriaIgnoreCase(String categoria);
 
     /**
      * Verifica se uma categoria já existe pelo nome.
@@ -27,5 +27,5 @@ public interface CategoriaProdutoRepository extends JpaRepository<CategoriaProdu
      * @param categoria nome da categoria
      * @return true se existe, false caso contrário
      */
-    boolean existsByCategoriIgnoreCase(String categoria);
+    boolean existsByCategoriaIgnoreCase(String categoria);
 }

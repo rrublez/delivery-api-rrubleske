@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.RamoEstabelecimentoRequestDTO;
 import com.deliverytech.delivery.dto.RamoEstabelecimentoResponseDTO;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +31,6 @@ public class RamoEstabelecimentoServiceImpl implements RamoEstabelecimentoServic
         log.info("Criando novo ramo: {}", requestDTO.getNome());
 
         RamoEstabelecimento ramo = RamoEstabelecimento.builder()
-                .id(UUID.randomUUID().toString())
                 .nome(requestDTO.getNome())
                 .descricao(requestDTO.getDescricao())
                 .build();
@@ -50,7 +49,7 @@ public class RamoEstabelecimentoServiceImpl implements RamoEstabelecimentoServic
         RamoEstabelecimento ramo = ramoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", id);
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         return toResponseDTO(ramo);
@@ -85,7 +84,7 @@ public class RamoEstabelecimentoServiceImpl implements RamoEstabelecimentoServic
         RamoEstabelecimento ramo = ramoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", id);
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         ramo.setNome(requestDTO.getNome());
@@ -104,7 +103,7 @@ public class RamoEstabelecimentoServiceImpl implements RamoEstabelecimentoServic
         RamoEstabelecimento ramo = ramoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Ramo não encontrado: {}", id);
-                    return new IllegalArgumentException("Ramo não encontrado");
+                    return new ResourceNotFoundException("Ramo não encontrado");
                 });
 
         ramoRepository.delete(ramo);

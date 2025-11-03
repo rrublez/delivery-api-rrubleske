@@ -1,6 +1,7 @@
 package com.deliverytech.delivery.entity;
 
 import com.deliverytech.delivery.commons.TipoEndereco;
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,7 +50,7 @@ public class Endereco {
     @NotBlank(message = "Estado não pode ser vazio")
     private String estado;
 
-    @Size(max = 8)
+    @Size(max = 9)
     private String cep;
 
     @Size(max = 25)
@@ -72,5 +75,17 @@ public class Endereco {
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = true)
     private Cliente cliente;
+
+    /**
+     * Remove o hífen do CEP antes de persistir no banco de dados.
+     * Exemplo: "01310-100" → "01310100"
+     */
+    @PrePersist
+    @PreUpdate
+    public void sanitizarCep() {
+        if (StringUtils.isNotBlank(this.cep)) {
+            this.cep = this.cep.replaceAll("-", "");
+        }
+    }
 
 }

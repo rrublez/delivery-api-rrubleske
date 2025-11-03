@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.*;
 import com.deliverytech.delivery.entity.*;
@@ -307,7 +308,7 @@ public class PedidoServiceImpl implements PedidoService {
                     .findFirst()
                     .orElseThrow(() -> {
                         log.warn("Produto não encontrado no estabelecimento: {}", itemRequest.getProdutoEstabelecimentoId());
-                        return new IllegalArgumentException("Produto não encontrado no estabelecimento");
+                        return new ResourceNotFoundException("Produto não encontrado no estabelecimento");
                     });
 
             // Verificar se está em promoção

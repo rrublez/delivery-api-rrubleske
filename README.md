@@ -2,7 +2,7 @@
 
 **Sistema de gestão de pedidos de delivery** desenvolvido com Spring Boot 3.4.11, Java 21 LTS e banco de dados H2.
 
-**Versão**: 1.2.0 | **Status**: ✅ Production Ready
+**Versão**: 1.2.3 | **Status**: ✅ Production Ready
 
 [![Java](https://img.shields.io/badge/Java-21%20LTS-red)](https://www.oracle.com/java/technologies/javase/jdk21-archive.html)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.11-brightgreen)](https://spring.io/projects/spring-boot)
@@ -379,6 +379,7 @@ A documentação completa está na pasta `Docs/`:
 | `INDEX.md` | Índice completo de todos endpoints |
 | `MULTIPLOS_ENDERECOS_CLIENTE.md` | ⭐ Nova feature: Múltiplos endereços (1.2.0) |
 | `GUIA_TESTES.md` | 12 testes passo a passo (com múltiplos endereços) |
+| `TRATAMENTO_ERROS.md` | ⭐ **NOVO em 1.2.3**: Padrão de respostas de erro HTTP |
 | `CLIENTE_CONTROLLER.md` | ⭐ Documentação de cliente (atualizado para múltiplos endereços) |
 | `ENDERECO_CONTROLLER.md` | ⭐ Documentação de endereço (novo relacionamento com cliente) |
 | `PEDIDO_CRUD_CONTROLLER.md` | ⭐ Documentação de pedidos (nova validação de endereço) |
@@ -393,6 +394,12 @@ Veja todas em: `Docs/`
 - 📍 **Validação de Endereço**: Pedidos validam se endereço pertence ao cliente
 - 🔄 **Relacionamento Bidirecional**: Cliente ↔ Endereco (1:N)
 - 📚 **25+ arquivos de documentação** (atualizado de 20+)
+
+### Principais Atualizações em v1.2.3
+- 🚨 **Tratamento Global de Erros**: Status HTTP apropriados (4xx vs 5xx)
+- 🔒 **Segurança**: Stack trace apenas em erros 5xx (não em validação)
+- 📋 **Padronização**: Resposta estruturada para todos os erros
+- 📖 Veja `TRATAMENTO_ERROS.md` para detalhes
 
 ---
 

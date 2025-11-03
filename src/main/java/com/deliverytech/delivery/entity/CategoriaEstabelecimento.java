@@ -4,12 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,8 +31,5 @@ public class CategoriaEstabelecimento {
 
     @Size(max = 100)
     private String descricao;
-
-    @OneToMany(mappedBy = "categoria")
-    private List<Estabelecimento> estabelecimentos;
 
 }

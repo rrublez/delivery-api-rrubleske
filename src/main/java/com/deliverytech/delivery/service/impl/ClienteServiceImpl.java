@@ -2,6 +2,7 @@ package com.deliverytech.delivery.service.impl;
 
 import com.deliverytech.delivery.dto.ClienteRequestDTO;
 import com.deliverytech.delivery.dto.ClienteResponseDTO;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 import com.deliverytech.delivery.dto.EnderecoResponseDTO;
 import com.deliverytech.delivery.entity.Cliente;
 import com.deliverytech.delivery.entity.Endereco;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +50,6 @@ public class ClienteServiceImpl implements ClienteService {
         }
 
         Cliente cliente = Cliente.builder()
-                .id(UUID.randomUUID().toString())
                 .nome(requestDTO.getNome())
                 .email(requestDTO.getEmail())
                 .telefone(requestDTO.getTelefone())
@@ -64,7 +63,6 @@ public class ClienteServiceImpl implements ClienteService {
             log.info("Criando endereço de tipo {} para o cliente", enderecoDTO.getTipoEndereco());
             
             Endereco endereco = Endereco.builder()
-                    .id(UUID.randomUUID().toString())
                     .rua(enderecoDTO.getRua())
                     .numero(enderecoDTO.getNumero())
                     .complemento(enderecoDTO.getComplemento())
@@ -95,7 +93,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cliente não encontrado: {}", id);
-                    return new IllegalArgumentException("Cliente não encontrado");
+                    return new ResourceNotFoundException("Cliente não encontrado");
                 });
 
         return toResponseDTO(cliente);
@@ -120,7 +118,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("Cliente não encontrado com email: {}", email);
-                    return new IllegalArgumentException("Cliente não encontrado");
+                    return new ResourceNotFoundException("Cliente não encontrado");
                 });
 
         return toResponseDTO(cliente);
@@ -133,7 +131,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cliente não encontrado: {}", id);
-                    return new IllegalArgumentException("Cliente não encontrado");
+                    return new ResourceNotFoundException("Cliente não encontrado");
                 });
 
         // Validar email se foi alterado
@@ -164,7 +162,6 @@ public class ClienteServiceImpl implements ClienteService {
             
             for (var enderecoDTO : requestDTO.getEnderecos()) {
                 Endereco endereco = Endereco.builder()
-                        .id(UUID.randomUUID().toString())
                         .rua(enderecoDTO.getRua())
                         .numero(enderecoDTO.getNumero())
                         .complemento(enderecoDTO.getComplemento())
@@ -195,7 +192,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cliente não encontrado: {}", id);
-                    return new IllegalArgumentException("Cliente não encontrado");
+                    return new ResourceNotFoundException("Cliente não encontrado");
                 });
 
         clienteRepository.delete(cliente);

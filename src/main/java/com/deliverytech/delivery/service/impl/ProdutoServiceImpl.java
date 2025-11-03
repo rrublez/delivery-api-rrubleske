@@ -1,4 +1,5 @@
 package com.deliverytech.delivery.service.impl;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 
 import com.deliverytech.delivery.dto.CategoriaProdutoResponseDTO;
 import com.deliverytech.delivery.dto.ProdutoRequestDTO;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +41,6 @@ public class ProdutoServiceImpl implements ProdutoService {
                 });
 
         Produto produto = Produto.builder()
-                .id(UUID.randomUUID().toString())
                 .nome(requestDTO.getNome())
                 .descricao(requestDTO.getDescricao())
                 .unidade(requestDTO.getUnidade())
@@ -62,7 +61,7 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Produto não encontrado: {}", id);
-                    return new IllegalArgumentException("Produto não encontrado");
+                    return new ResourceNotFoundException("Produto não encontrado");
                 });
 
         return toResponseDTO(produto);
@@ -114,7 +113,7 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Produto não encontrado: {}", id);
-                    return new IllegalArgumentException("Produto não encontrado");
+                    return new ResourceNotFoundException("Produto não encontrado");
                 });
 
         CategoriaProduto categoria = categoriaProdutoRepository.findById(requestDTO.getCategoriaId())
@@ -141,7 +140,7 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Produto não encontrado: {}", id);
-                    return new IllegalArgumentException("Produto não encontrado");
+                    return new ResourceNotFoundException("Produto não encontrado");
                 });
 
         produtoRepository.delete(produto);
