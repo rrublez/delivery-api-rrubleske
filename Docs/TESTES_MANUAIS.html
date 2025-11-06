@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang=\"pt-BR\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>Delivery API - Guia de Testes Manuais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .card .count {
+            background: #667eea;
+            color: white;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .test-group {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .test-group h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+        
+        .test-list {
+            list-style: none;
+        }
+        
+        .test-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+        
+        .test-list li:before {
+            content: \"✓\";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-error {
+            background: #ffe0e0;
+            color: #c00;
+        }
+        
+        .status-success {
+            background: #e0f2e0;
+            color: #006600;
+        }
+        
+        .status-info {
+            background: #e0f2ff;
+            color: #0066cc;
+        }
+        
+        .files {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .file-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .file-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .file-card h3 {
+            margin-bottom: 10px;
+        }
+        
+        .file-card p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            padding-left: 40px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .timeline-item:before {
+            content: \"\";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+        
+        .timeline-item:after {
+            content: \"\";
+            position: absolute;
+            left: 19px;
+            top: 20px;
+            width: 2px;
+            height: 30px;
+            background: #ddd;
+        }
+        
+        .timeline-item:last-child:after {
+            display: none;
+        }
+        
+        .timeline-item h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-item p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .alert strong {
+            color: #856404;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-box .number {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .stat-box .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class=\"container\">
+        <div class=\"header\">
+            <h1>🚀 Delivery API - Guia de Testes Manuais</h1>
+            <p>Documentação completa com 32 testes organizados em 4 grupos</p>
+        </div>
+        
+        <div class=\"content\">
+            <!-- STATS -->
+            <div class=\"stats\">
+                <div class=\"stat-box\">
+                    <div class=\"number\">32</div>
+                    <div class=\"label\">Testes Total</div>
+                </div>
+                <div class=\"stat-box\">
+                    <div class=\"number\">4</div>
+                    <div class=\"label\">Grupos</div>
+                </div>
+                <div class=\"stat-box\">
+                    <div class=\"number\">11</div>
+                    <div class=\"label\">Objetos</div>
+                </div>
+                <div class=\"stat-box\">
+                    <div class=\"number\">~45min</div>
+                    <div class=\"label\">Tempo Total</div>
+                </div>
+            </div>
+            
+            <!-- ARQUIVOS -->
+            <div class=\"section\">
+                <h2>📂 Arquivos de Documentação</h2>
+                <div class=\"files\">
+                    <div class=\"file-card\">
+                        <div class=\"icon\">📖</div>
+                        <h3>Guia de Testes</h3>
+                        <p>Documentação completa com validações e cenários</p>
+                        <p style=\"margin-top: 10px; font-size: 0.8em;\">GUIA_TESTES_MANUAIS.md</p>
+                    </div>
+                    <div class=\"file-card\">
+                        <div class=\"icon\">📥</div>
+                        <h3>Guia de Importação</h3>
+                        <p>Passo-a-passo para importar as collections</p>
+                        <p style=\"margin-top: 10px; font-size: 0.8em;\">GUIA_IMPORTACAO_COLLECTIONS.md</p>
+                    </div>
+                    <div class=\"file-card\">
+                        <div class=\"icon\">📮</div>
+                        <h3>Collection Postman</h3>
+                        <p>32 testes prontos para importar no Postman</p>
+                        <p style=\"margin-top: 10px; font-size: 0.8em;\">delivery-api-postman.json</p>
+                    </div>
+                    <div class=\"file-card\">
+                        <div class=\"icon\">🎯</div>
+                        <h3>Collection Bruno</h3>
+                        <p>32 testes prontos para importar no Bruno</p>
+                        <p style=\"margin-top: 10px; font-size: 0.8em;\">delivery-api-bruno.bru</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GRUPOS DE TESTES -->
+            <div class=\"section\">
+                <h2>📊 Grupos de Testes</h2>
+                
+                <div class=\"test-group\">
+                    <h3>Grupo 1: Testes de Validação <span class=\"status-badge status-error\">Devem Falhar</span></h3>
+                    <p style=\"margin-bottom: 15px; color: #666;\">Valida regras de negócio com valores inválidos. Esperado: Status 400/422</p>
+                    <ul class=\"test-list\">
+                        <li>Email inválido</li>
+                        <li>CPF inválido (sequência)</li>
+                        <li>Nome muito curto</li>
+                        <li>Telefone muito curto</li>
+                        <li>CNPJ inválido</li>
+                        <li>Taxa entrega negativa</li>
+                        <li>Preço zero</li>
+                        <li>Preço negativo</li>
+                        <li>Número de pedido inválido</li>
+                        <li>Status pedido inválido</li>
+                        <li>Quantidade zero</li>
+                        <li>Pedido sem itens</li>
+                    </ul>
+                    <span class=\"count\">12 testes</span>
+                </div>
+                
+                <div class=\"test-group\">
+                    <h3>Grupo 2: Criação de Dados Base <span class=\"status-badge status-success\">Devem Passar</span></h3>
+                    <p style=\"margin-bottom: 15px; color: #666;\">Cria dados necessários para testes. Esperado: Status 201 Created</p>
+                    <ul class=\"test-list\">
+                        <li>✓ Cliente 1: João Silva</li>
+                        <li>✓ Cliente 2: Maria Santos</li>
+                        <li>✓ Cliente 3: Pedro Oliveira</li>
+                        <li>✓ Restaurante 1: Pizza Palace (Pizzaria)</li>
+                        <li>✓ Restaurante 2: Sushi House (Japonesa)</li>
+                        <li>✓ Produto 1: Pizza Margherita (R$ 45,00)</li>
+                        <li>✓ Produto 2: Pizza Pepperoni (R$ 50,00)</li>
+                        <li>✓ Produto 3: Refrigerante 2L (R$ 8,00)</li>
+                        <li>✓ Produto 4: Combo Sushi Premium (R$ 120,00)</li>
+                        <li>✓ Produto 5: Temaki Salmão (R$ 35,00)</li>
+                        <li>✓ Produto 6: Sakê 300ml (R$ 25,00)</li>
+                    </ul>
+                    <span class=\"count\">11 testes</span>
+                </div>
+                
+                <div class=\"test-group\">
+                    <h3>Grupo 3: Consultas Simples <span class=\"status-badge status-success\">Devem Passar</span></h3>
+                    <p style=\"margin-bottom: 15px; color: #666;\">Testa endpoints básicos de consulta. Esperado: Status 200 OK</p>
+                    <ul class=\"test-list\">
+                        <li>Buscar cliente por email</li>
+                        <li>Buscar produtos por categoria</li>
+                        <li>Listar restaurantes por ramo</li>
+                        <li>Listar pedidos por status</li>
+                        <li>Listar pedidos por cliente</li>
+                        <li>Produtos disponíveis</li>
+                        <li>Restaurantes ativos</li>
+                    </ul>
+                    <span class=\"count\">7 testes</span>
+                </div>
+                
+                <div class=\"test-group\">
+                    <h3>Grupo 4: Relatórios e Endpoints Complexos <span class=\"status-badge status-success\">Devem Passar</span></h3>
+                    <p style=\"margin-bottom: 15px; color: #666;\">Testa endpoints de análise de dados. Esperado: Status 200 OK</p>
+                    <ul class=\"test-list\">
+                        <li>Total de vendas por restaurante</li>
+                        <li>Pedidos com valor acima de 100</li>
+                        <li>Pedidos com valor acima de 50</li>
+                        <li>Relatório por período e status (ENTREGUE)</li>
+                        <li>Relatório por período e status (PENDENTE)</li>
+                        <li>Produtos mais vendidos</li>
+                        <li>Ranking de clientes por número de pedidos</li>
+                        <li>Faturamento por categoria</li>
+                    </ul>
+                    <span class=\"count\">8 testes</span>
+                </div>
+            </div>
+            
+            <!-- FLUXO DE EXECUÇÃO -->
+            <div class=\"section\">
+                <h2>⏱️ Fluxo Recomendado</h2>
+                <div class=\"timeline\">
+                    <div class=\"timeline-item\">
+                        <h4>1️⃣ Setup (1 min)</h4>
+                        <p>Verificar se a API está rodando</p>
+                        <p style=\"font-size: 0.9em; color: #999;\">Endpoint: GET /health</p>
+                    </div>
+                    <div class=\"timeline-item\">
+                        <h4>2️⃣ Testes de Validação (10 min)</h4>
+                        <p>Executar 12 testes que devem retornar erro</p>
+                        <p style=\"font-size: 0.9em; color: #999;\">Status esperado: 400/422</p>
+                    </div>
+                    <div class=\"timeline-item\">
+                        <h4>3️⃣ Criar Dados (10 min)</h4>
+                        <p>Executar 11 testes de criação de dados</p>
+                        <p style=\"font-size: 0.9em; color: #999;\">Status esperado: 201 Created</p>
+                    </div>
+                    <div class=\"timeline-item\">
+                        <h4>4️⃣ Consultas (5 min)</h4>
+                        <p>Verificar se dados foram salvos corretamente</p>
+                        <p style=\"font-size: 0.9em; color: #999;\">Status esperado: 200 OK</p>
+                    </div>
+                    <div class=\"timeline-item\">
+                        <h4>5️⃣ Relatórios (10 min)</h4>
+                        <p>Testar endpoints complexos de análise</p>
+                        <p style=\"font-size: 0.9em; color: #999;\">Status esperado: 200 OK com agregações</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DADOS DE TESTE -->
+            <div class=\"section\">
+                <h2>📋 Dados de Teste</h2>
+                
+                <h3 style=\"color: #667eea; margin-top: 20px; margin-bottom: 10px;\">Clientes (3)</h3>
+                <div class=\"code-block\">
+João Silva → joao@email.com → CPF: 12345678901 → Tel: 11987654321
+Maria Santos → maria@email.com → CPF: 98765432109 → Tel: 11912345678
+Pedro Oliveira → pedro@email.com → CPF: 55555555555 → Tel: 11955555555
+                </div>
+                
+                <h3 style=\"color: #667eea; margin-top: 20px; margin-bottom: 10px;\">Restaurantes (2)</h3>
+                <div class=\"code-block\">
+Pizza Palace → Pizzaria → CNPJ: 11222333000181 → Taxa: R$ 5,00
+Sushi House → Japonesa → CNPJ: 11444555000182 → Taxa: R$ 8,50
+                </div>
+                
+                <h3 style=\"color: #667eea; margin-top: 20px; margin-bottom: 10px;\">Produtos (6)</h3>
+                <div class=\"code-block\">
+Pizza Margherita → R$ 45,00 → Categoria: Pizzas
+Pizza Pepperoni → R$ 50,00 → Categoria: Pizzas
+Refrigerante 2L → R$ 8,00 → Categoria: Bebidas
+Combo Sushi Premium → R$ 120,00 → Categoria: Combos
+Temaki Salmão → R$ 35,00 → Categoria: Temakis
+Sakê 300ml → R$ 25,00 → Categoria: Bebidas
+                </div>
+                
+                <h3 style=\"color: #667eea; margin-top: 20px; margin-bottom: 10px;\">Pedidos (3)</h3>
+                <div class=\"code-block\">
+Pedido 1 (PENDENTE) → Total: R$ 61,00
+  └─ 1x Pizza Margherita (R$ 45)
+  └─ 2x Refrigerante (R$ 8 c/u)
+
+Pedido 2 (ENTREGUE) → Total: R$ 282,00
+  └─ 3x Pizza Pepperoni (R$ 50 c/u)
+  └─ 2x Pizza Margherita (R$ 45 c/u)
+  └─ 4x Refrigerante (R$ 8 c/u)
+
+Pedido 3 (ENTREGUE) → Total: R$ 395,00
+  └─ 2x Combo Sushi (R$ 120 c/u)
+  └─ 3x Temaki Salmão (R$ 35 c/u)
+  └─ 2x Sakê (R$ 25 c/u)
+                </div>
+            </div>
+            
+            <!-- INÍCIO RÁPIDO -->
+            <div class=\"section\">
+                <h2>🚀 Início Rápido</h2>
+                
+                <h3 style=\"color: #667eea; margin-bottom: 15px;\">1. Inicie a API</h3>
+                <div class=\"code-block\">
+./mvnw spring-boot:run
+                </div>
+                
+                <h3 style=\"color: #667eea; margin-bottom: 15px; margin-top: 20px;\">2. Importe a Collection</h3>
+                <div style=\"background: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;\">
+                    <p><strong>Postman:</strong> Import → delivery-api-postman.json</p>
+                    <p><strong>Bruno:</strong> File → Import Collection → delivery-api-bruno.bru</p>
+                </div>
+                
+                <h3 style=\"color: #667eea; margin-bottom: 15px;\">3. Execute os Testes</h3>
+                <p style=\"margin-bottom: 10px;\">Execute os grupos nesta ordem:</p>
+                <ol style=\"margin-left: 20px; color: #666;\">
+                    <li>0 - Setup e Validação</li>
+                    <li>1 - Testes de Validação</li>
+                    <li>2 - Criação de Dados Base</li>
+                    <li>3 - Consultas Simples</li>
+                    <li>4 - Relatórios e Endpoints Complexos</li>
+                </ol>
+            </div>
+            
+            <!-- CHECKLIST -->
+            <div class=\"section\">
+                <h2>✅ Checklist de Testes</h2>
+                <ul class=\"test-list\">
+                    <li>API rodando e respondendo a /health</li>
+                    <li>12 Testes de validação executados (devem falhar)</li>
+                    <li>3 Clientes criados com sucesso</li>
+                    <li>2 Restaurantes criados com sucesso</li>
+                    <li>6 Produtos criados com sucesso</li>
+                    <li>3 Pedidos criados com sucesso</li>
+                    <li>7 Consultas simples retornam dados</li>
+                    <li>Total de vendas por restaurante: 2 restaurantes</li>
+                    <li>Pedidos valor > 100: 1 pedido retornado</li>
+                    <li>Pedidos valor > 50: 2-3 pedidos retornados</li>
+                    <li>Produtos mais vendidos: Lista com quantidades</li>
+                    <li>Ranking clientes: 3 clientes</li>
+                    <li>Faturamento por categoria: 4 categorias</li>
+                </ul>
+            </div>
+            
+            <div class=\"alert\">
+                <strong>⚠️ Importante:</strong> 
+                Todos os dados de teste estão inclusos nas collections Postman e Bruno. 
+                Basta importar e executar na ordem recomendada. Os IDs são salvos automaticamente no Postman.
+            </div>
+        </div>
+        
+        <div class=\"footer\">
+            <p>Delivery Tech API v1.0.0 | Java 21 | Spring Boot 3.4.11 | Novembro 2025</p>
+            <p>Para mais informações, consulte GUIA_TESTES_MANUAIS.md e GUIA_IMPORTACAO_COLLECTIONS.md</p>
+        </div>
+    </div>
+</body>
+</html>
