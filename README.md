@@ -260,7 +260,16 @@ Content-Type: application/json
 ---
 
 ### 📦 Pedido Controller
-Gerenciamento de pedidos (CRUD + Relatórios)
+Gerenciamento de pedidos com **ciclo completo** (CRUD + Filtros + Cálculos + Relatórios)
+
+#### CRUD Completo
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `POST` | `/api/pedidos` | Criar pedido | ✅ |
+| `GET` | `/api/pedidos/{id}` | Obter pedido completo | ✅ |
+| `GET` | `/api/pedidos` | Listar com filtros | ✅ |
+| `PATCH` | `/api/pedidos/{id}/status` | Atualizar status | ✅ |
+| `DELETE` | `/api/pedidos/{id}` | Cancelar pedido | ✅ |
 
 #### Criar Pedido
 ```http
@@ -268,9 +277,64 @@ POST /api/pedidos
 Content-Type: application/json
 
 {
-  "numeroPedido": "PEDIDO-001",
+  "numeroPedido": "PED-2025-001",
   "status": "PENDENTE",
   "clienteId": 1,
+  "restauranteId": 1,
+  "itens": [
+    {
+      "produtoId": 1,
+      "quantidade": 2,
+      "precoUnitario": 45.00,
+      "observacoes": "Sem cebola"
+    }
+  ]
+}
+```
+**Resposta:** 201 Created  
+**Validações:** Número (5-20 chars), Status válido, Mínimo 1 item, Quantidade > 0, Preço > 0
+
+#### Obter Pedido (GET /{id})
+```http
+GET /api/pedidos/1
+```
+Retorna pedido completo com todos seus detalhes e itens
+
+#### Listar com Filtros (GET)
+```http
+GET /api/pedidos?status=PENDENTE&dataInicial=2025-11-01T00:00:00&dataFinal=2025-11-30T23:59:59
+```
+**Query Params:** `status`, `dataInicial`, `dataFinal` (todos opcionais)
+
+#### Atualizar Status (PATCH)
+```http
+PATCH /api/pedidos/{id}/status
+Content-Type: application/json
+
+{
+  "status": "CONFIRMADO"
+}
+```
+**Valores válidos:** PENDENTE, CONFIRMADO, PREPARANDO, SAIU_ENTREGA, ENTREGUE, CANCELADO
+
+#### Cancelar Pedido (DELETE)
+```http
+DELETE /api/pedidos/1
+```
+Muda status para CANCELADO (204 No Content)
+
+#### Filtros Adicionais
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/clientes/{clienteId}/pedidos` | Histórico do cliente |
+| `GET` | `/api/restaurantes/{restauranteId}/pedidos` | Pedidos do restaurante |
+
+#### Cálculo (sem salvar) 🧮
+```http
+POST /api/pedidos/calcular
+Content-Type: application/json
+
+{
   "restauranteId": 1,
   "itens": [
     {
@@ -281,24 +345,29 @@ Content-Type: application/json
   ]
 }
 ```
-**Resposta:** 201 Created  
-**Validações:** Número único, Status (PENDENTE|ENTREGUE|CANCELADO), Mínimo 1 item, Quantidade > 0
+**Resposta:**
+```json
+{
+  "subtotal": 90.00,
+  "taxaEntrega": 5.00,
+  "valorTotal": 95.00,
+  "itens": [...]
+}
+```
 
-#### Consultar Pedidos
+#### Relatórios & Filtros Legados 📊
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/pedidos/cliente/{clienteId}` | Pedidos de um cliente | - |
-| `GET` | `/api/pedidos/status/{status}` | Pedidos por status | - |
-| `GET` | `/api/pedidos/top-10-maiores` | Top 10 maiores pedidos | - |
-| `GET` | `/api/pedidos/data-range` | Pedidos em período | `?dataInicial=2025-01-01T00:00:00&dataFinal=2025-12-31T23:59:59` |
-| `GET` | `/api/pedidos/restaurante/{id}/top-5` | Top 5 pedidos de restaurante | - |
+| `GET` | `/api/pedidos/cliente/{clienteId}` | Pedidos de cliente (legado) | - |
+| `GET` | `/api/pedidos/status/{status}` | Por status (legado) | - |
+| `GET` | `/api/pedidos/top-10-maiores` | Top 10 maiores | - |
+| `GET` | `/api/pedidos/data-range` | Por período (legado) | `?dataInicial=...&dataFinal=...` |
+| `GET` | `/api/pedidos/restaurante/{id}/top-5` | Top 5 de restaurante | - |
+| `GET` | `/api/pedidos/relatorio/vendas-por-restaurante` | Vendas por restaurante | - |
+| `GET` | `/api/pedidos/relatorio/valor-acima` | Valor acima de X | `?valor=100` |
+| `GET` | `/api/pedidos/relatorio/periodo-status` | Período + status | `?dataInicial=...&dataFinal=...&status=...` |
 
-#### Relatórios 📊
-| Método | Endpoint | Descrição | Retorno | Query |
-|--------|----------|-----------|---------|-------|
-| `GET` | `/api/pedidos/relatorio/vendas-por-restaurante` | Total de vendas agrupado | JSON Array | - |
-| `GET` | `/api/pedidos/relatorio/valor-acima` | Pedidos com valor mínimo | JSON Array | `?valor=100` |
-| `GET` | `/api/pedidos/relatorio/periodo-status` | Filtro período + status | JSON Array | `?dataInicial=...&dataFinal=...&status=ENTREGUE` |
+📖 **[Documentação Completa dos Endpoints →](./Docs/ENDPOINTS_PEDIDOS.md)**
 
 ---
 

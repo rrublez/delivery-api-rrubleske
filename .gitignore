@@ -33,6 +33,4 @@ build/
 .vscode/
 .mvn/
 logs/
-data/deliverydb.mv.db
-data/deliverydb.mv.db
-data/deliverydb.mv.db
+data/*

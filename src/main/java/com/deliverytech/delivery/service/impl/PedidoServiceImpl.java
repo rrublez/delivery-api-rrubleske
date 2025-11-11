@@ -1,7 +1,10 @@
 package com.deliverytech.delivery.service.impl;
 
+import com.deliverytech.delivery.dto.request.AtualizarStatusPedidoRequest;
+import com.deliverytech.delivery.dto.request.CalcularPedidoRequest;
 import com.deliverytech.delivery.dto.request.PedidoRequest;
 import com.deliverytech.delivery.dto.request.PedidoProdutoRequest;
+import com.deliverytech.delivery.dto.response.CalcularPedidoResponse;
 import com.deliverytech.delivery.dto.response.PedidoRelatorioResponse;
 import com.deliverytech.delivery.dto.response.PedidoResponse;
 import com.deliverytech.delivery.dto.response.PedidoProdutoResponse;
@@ -150,6 +153,115 @@ public class PedidoServiceImpl implements PedidoService {
   public List<PedidoRelatorioResponse> obterRelatorioByPeriodoAndStatus(
       LocalDateTime dataInicial, LocalDateTime dataFinal, String status) {
     return pedidoRepository.obterRelatorioByPeriodoAndStatus(dataInicial, dataFinal, status);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public PedidoResponse obterPorId(Long id) {
+    return pedidoRepository.findById(id)
+        .map(this::mapearParaResponse)
+        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PedidoResponse> listarComFiltros(String status, LocalDateTime dataInicial, 
+      LocalDateTime dataFinal) {
+    if (status != null && dataInicial != null && dataFinal != null) {
+      return pedidoRepository.findByStatusAndDataPedidoBetween(status, dataInicial, dataFinal)
+          .stream()
+          .map(this::mapearParaResponse)
+          .toList();
+    } else if (status != null) {
+      return findByStatus(status);
+    } else if (dataInicial != null && dataFinal != null) {
+      return findByDataPedidoBetween(dataInicial, dataFinal);
+    }
+    return new ArrayList<>();
+  }
+
+  @Override
+  @Transactional
+  public PedidoResponse atualizarStatus(Long id, AtualizarStatusPedidoRequest request) {
+    var pedido = pedidoRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+    pedido.setStatus(request.getStatus());
+    var pedidoAtualizado = pedidoRepository.save(pedido);
+    return mapearParaResponse(pedidoAtualizado);
+  }
+
+  @Override
+  @Transactional
+  public void cancelarPedido(Long id) {
+    var pedido = pedidoRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+    pedido.setStatus("CANCELADO");
+    pedidoRepository.save(pedido);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PedidoResponse> pedidosPorCliente(Long clienteId) {
+    return findByClienteId(clienteId);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PedidoResponse> pedidosPorRestaurante(Long restauranteId) {
+    return pedidoRepository.findByRestauranteId(restauranteId)
+        .stream()
+        .map(this::mapearParaResponse)
+        .toList();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public CalcularPedidoResponse calcularTotal(CalcularPedidoRequest request) {
+    var restaurante = restauranteRepository.findById(request.getRestauranteId())
+        .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+
+    var itens = new ArrayList<PedidoProdutoResponse>();
+    var subtotal = BigDecimal.ZERO;
+
+    for (PedidoProdutoRequest itemRequest : request.getItens()) {
+      var produto = produtoRepository.findById(itemRequest.getProdutoId())
+          .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+      var precoUnitario = itemRequest.getPrecoUnitario();
+      var quantidade = itemRequest.getQuantidade();
+      var itemSubtotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+
+      var produtoResponse = new ProdutoResponse(
+          produto.getId(),
+          produto.getNome(),
+          produto.getDescricao(),
+          produto.getPreco(),
+          produto.getDisponivel(),
+          produto.getCategoria()
+      );
+
+      itens.add(new PedidoProdutoResponse(
+          null,
+          produtoResponse,
+          quantidade,
+          precoUnitario,
+          itemSubtotal,
+          itemRequest.getObservacoes()
+      ));
+
+      subtotal = subtotal.add(itemSubtotal);
+    }
+
+    var taxaEntrega = restaurante.getTaxaEntrega();
+    var valorTotal = subtotal.add(taxaEntrega);
+
+    var response = new CalcularPedidoResponse();
+    response.setItens(itens);
+    response.setSubtotal(subtotal);
+    response.setTaxaEntrega(taxaEntrega);
+    response.setValorTotal(valorTotal);
+
+    return response;
   }
 
   private PedidoResponse mapearParaResponse(Pedido pedido) {

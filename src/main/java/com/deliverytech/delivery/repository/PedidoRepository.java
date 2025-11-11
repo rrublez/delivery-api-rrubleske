@@ -17,6 +17,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
   List<Pedido> findByStatus(String status);
 
+  List<Pedido> findByRestauranteId(Long restauranteId);
+
+  List<Pedido> findByStatusAndDataPedidoBetween(String status, LocalDateTime dataInicial, LocalDateTime dataFinal);
+
   List<Pedido> findTop10ByOrderByValorTotalDesc();
 
   List<Pedido> findByDataPedidoBetween(LocalDateTime dataInicial, LocalDateTime dataFinal);
