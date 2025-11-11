@@ -18,7 +18,7 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 
     List<Restaurante> findByRamoAtividadeAndAtivoTrue(String ramoAtividade);
 
-    List<Restaurante> findByAtivoTrueAndTaxaEntregaLessThanEqual(Boolean ativo, BigDecimal taxa);
+    List<Restaurante> findByAtivoTrueAndTaxaEntregaLessThanEqual(BigDecimal taxa);
 
     Optional<Restaurante> findByIdAndAtivoTrue(Long id);
 

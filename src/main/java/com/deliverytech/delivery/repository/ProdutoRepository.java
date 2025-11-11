@@ -22,6 +22,10 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
   List<Produto> findByPrecoLessThanEqual(BigDecimal preco);
 
+  // Buscar produtos por nome (LIKE case-insensitive)
+  @Query("SELECT p FROM Produto p WHERE LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
+  List<Produto> findByNome(@Param("nome") String nome);
+
   // Query: Produtos mais vendidos
   @Query("SELECT NEW com.deliverytech.delivery.dto.response.ProdutoMaisVendidoResponse("
       + "p.id, p.nome, p.categoria, COALESCE(SUM(pp.quantidade), 0L), COALESCE(SUM(pp.subtotal), 0.0)) "

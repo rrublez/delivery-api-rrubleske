@@ -215,7 +215,7 @@ Retorna restaurantes ativos dentro do raio (km), ordenados por distância
 ---
 
 ### 🍕 Produto Controller
-Gerenciamento de produtos
+Gerenciamento de produtos (CRUD + Filtros)
 
 #### Criar Produto
 ```http
@@ -231,14 +231,24 @@ Content-Type: application/json
 }
 ```
 **Resposta:** 201 Created  
-**Validações:** Preço > 0, Nome, Descrição, Categoria
+**Validações:** Nome (3-100), Descrição (5-255), Preço (>0), Categoria (3-20)
+
+#### CRUD Completo
+| Método | Endpoint | Descrição | Query |
+|--------|----------|-----------|-------|
+| `POST` | `/api/produtos` | Criar produto | - |
+| `GET` | `/api/produtos/{id}` | Buscar por ID | - |
+| `PUT` | `/api/produtos/{id}` | Atualizar produto | - |
+| `DELETE` | `/api/produtos/{id}` | Remover produto | - |
+| `PATCH` | `/api/produtos/{id}/disponibilidade` | Toggle disponibilidade | - |
 
 #### Consultar Produtos
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/produtos/restaurante/{id}` | Produtos de um restaurante | - |
+| `GET` | `/api/restaurantes/{restauranteId}/produtos` | Produtos de um restaurante | - |
 | `GET` | `/api/produtos/disponivel` | Produtos disponíveis | - |
 | `GET` | `/api/produtos/categoria/{categoria}` | Produtos por categoria | - |
+| `GET` | `/api/produtos/buscar` | Buscar por nome (LIKE) | `?nome=Margherita` |
 | `GET` | `/api/produtos/preco-maximo` | Filtrar por preço máximo | `?preco=50.00` |
 
 #### Relatórios 📊
