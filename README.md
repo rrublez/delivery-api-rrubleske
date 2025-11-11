@@ -127,7 +127,17 @@ Content-Type: application/json
 ---
 
 ### 🏪 Restaurante Controller
-Gerenciamento de restaurantes
+Gerenciamento de restaurantes com **ciclo completo** (CRUD + Relatórios)
+
+#### CRUD Completo
+
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `GET` | `/api/restaurantes` | Listar com filtros | ✅ |
+| `POST` | `/api/restaurantes` | Criar | ✅ |
+| `GET` | `/api/restaurantes/{id}` | Obter por ID | ✅ |
+| `PUT` | `/api/restaurantes/{id}` | Atualizar completo | ✅ |
+| `PATCH` | `/api/restaurantes/{id}/status` | Ativar/desativar | ✅ |
 
 #### Criar Restaurante
 ```http
@@ -150,9 +160,57 @@ Content-Type: application/json
 #### Consultar Restaurantes
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/restaurantes/ramo/{ramo}` | Buscar por categoria/ramo | - |
-| `GET` | `/api/restaurantes/ativo` | Listar restaurantes ativos | - |
-| `GET` | `/api/restaurantes/taxa-maxima` | Filtrar por taxa máxima | `?taxa=5.00` |
+| `GET` | `/api/restaurantes` | Listar com filtros | `?ramo=Pizzaria&ativo=true` |
+| `GET` | `/api/restaurantes/{id}` | Buscar por ID | - |
+| `GET` | `/api/restaurantes/categoria/{categoria}` | Por categoria | - |
+
+#### Atualizar Restaurante
+```http
+PUT /api/restaurantes/{id}
+Content-Type: application/json
+
+{
+  "nome": "Pizza Palace Premium",
+  "endereco": "Avenida Paulista, 2000",
+  "telefone": "1133334445",
+  "cnpj": "11222333000181",
+  "ramoAtividade": "Pizzaria Premium",
+  "ativo": true,
+  "taxaEntrega": 7.50
+}
+```
+**Resposta:** 200 OK
+
+#### Ativar/Desativar (PATCH)
+```http
+PATCH /api/restaurantes/{id}/status
+Content-Type: application/json
+
+{
+  "ativo": false
+}
+```
+**Resposta:** 200 OK
+
+#### Relatórios & Cálculos 📊
+| Método | Endpoint | Descrição | Query |
+|--------|----------|-----------|-------|
+| `GET` | `/api/restaurantes/{id}/taxa-entrega/{cep}` | Calcular taxa | - |
+| `GET` | `/api/restaurantes/proximos/{cep}` | Restaurantes próximos | `?raio=10` |
+
+**Exemplo - Calcular taxa:**
+```bash
+GET /api/restaurantes/1/taxa-entrega/90010100
+```
+Retorna distância e taxa calculadas para o CEP
+
+**Exemplo - Restaurantes próximos:**
+```bash
+GET /api/restaurantes/proximos/90010100?raio=5
+```
+Retorna restaurantes ativos dentro do raio (km), ordenados por distância
+
+📖 **[Documentação Completa dos Endpoints →](./Docs/ENDPOINTS_RESTAURANTE.md)**
 
 ---
 
