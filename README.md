@@ -371,6 +371,103 @@ Content-Type: application/json
 
 ---
 
+### 📊 Relatório Controller
+Consolidação de todos os endpoints de relatório em um único controlador bem organizado
+
+#### Endpoints Disponíveis
+| Método | Endpoint | Descrição | Retorno |
+|--------|----------|-----------|---------|
+| `GET` | `/api/relatorios/vendas-por-restaurante` | Vendas totais por restaurante | JSON Array com agregações |
+| `GET` | `/api/relatorios/produtos-mais-vendidos` | Top 10 produtos mais vendidos | JSON Array ordenado por quantidade |
+| `GET` | `/api/relatorios/clientes-ativos` | Ranking de clientes por nº de pedidos | JSON Array ordenado por pedidos |
+| `GET` | `/api/relatorios/pedidos-por-periodo` | Pedidos em período, com filtro de status | JSON Array com query params |
+
+#### 1. Vendas por Restaurante
+```http
+GET /api/relatorios/vendas-por-restaurante
+```
+
+**Resposta:**
+```json
+[
+  {
+    "restauranteId": 1,
+    "restauranteNome": "Pizzaria XYZ",
+    "totalPedidos": 15,
+    "totalVendas": 450.00,
+    "ticketMedio": 30.00
+  }
+]
+```
+
+#### 2. Produtos Mais Vendidos
+```http
+GET /api/relatorios/produtos-mais-vendidos
+```
+
+**Resposta:**
+```json
+[
+  {
+    "produtoId": 5,
+    "produtoNome": "Pizza Margherita",
+    "categoria": "Pizzas",
+    "quantidadeVendida": 250,
+    "faturamento": 2500.00
+  }
+]
+```
+
+#### 3. Clientes Ativos
+```http
+GET /api/relatorios/clientes-ativos
+```
+
+**Resposta:**
+```json
+[
+  {
+    "clienteId": 1,
+    "clienteNome": "João Silva",
+    "email": "joao@email.com",
+    "totalPedidos": 25
+  }
+]
+```
+
+#### 4. Pedidos por Período
+```http
+GET /api/relatorios/pedidos-por-periodo?dataInicial=2025-01-01T00:00:00&dataFinal=2025-12-31T23:59:59&status=ENTREGUE
+```
+
+**Query Params:**
+- `dataInicial` (obrigatório): Início do período (ISO 8601)
+- `dataFinal` (obrigatório): Fim do período (ISO 8601)
+- `status` (opcional): Filtrar por status (PENDENTE, CONFIRMADO, ENTREGUE, CANCELADO)
+
+**Resposta:**
+```json
+[
+  {
+    "id": 1,
+    "numeroPedido": "PED-001",
+    "status": "ENTREGUE",
+    "clienteNome": "João Silva",
+    "restauranteNome": "Pizzaria XYZ",
+    "valorTotal": 85.50,
+    "dataPedido": "2025-11-10T14:30:00"
+  }
+]
+```
+
+**Validações:**
+- ❌ 400 Bad Request: Se dataInicial > dataFinal
+- ❌ 500 Internal Server Error: Erro no processamento
+
+📖 **[Documentação Completa dos Endpoints de Relatório →](./Docs/ENDPOINTS_RELATORIOS.md)**
+
+---
+
 ## ✔️ Validações Implementadas
 
 ### Validações de Campo
