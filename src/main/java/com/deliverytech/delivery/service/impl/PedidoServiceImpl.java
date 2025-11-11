@@ -1,15 +1,23 @@
 package com.deliverytech.delivery.service.impl;
 
-import com.deliverytech.delivery.dto.request.AtualizarStatusPedidoRequest;
-import com.deliverytech.delivery.dto.request.CalcularPedidoRequest;
-import com.deliverytech.delivery.dto.request.PedidoRequest;
-import com.deliverytech.delivery.dto.request.PedidoProdutoRequest;
-import com.deliverytech.delivery.dto.response.CalcularPedidoResponse;
-import com.deliverytech.delivery.dto.response.PedidoRelatorioResponse;
-import com.deliverytech.delivery.dto.response.PedidoResponse;
-import com.deliverytech.delivery.dto.response.PedidoProdutoResponse;
-import com.deliverytech.delivery.dto.response.ProdutoResponse;
-import com.deliverytech.delivery.dto.response.VendasPorRestauranteResponse;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.deliverytech.delivery.dto.cliente.response.ClienteResponse;
+import com.deliverytech.delivery.dto.pedido.request.AtualizarStatusPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.CalcularPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.PedidoRequest;
+import com.deliverytech.delivery.dto.pedido.response.CalcularPedidoResponse;
+import com.deliverytech.delivery.dto.pedido.response.PedidoRelatorioResponse;
+import com.deliverytech.delivery.dto.pedido.response.PedidoResponse;
+import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
+import com.deliverytech.delivery.dto.restaurante.response.RestauranteResponse;
+import com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest;
+import com.deliverytech.delivery.dto.shared.response.PedidoProdutoResponse;
+import com.deliverytech.delivery.dto.shared.response.VendasPorRestauranteResponse;
 import com.deliverytech.delivery.entity.Pedido;
 import com.deliverytech.delivery.entity.PedidoProduto;
 import com.deliverytech.delivery.repository.ClienteRepository;
@@ -17,12 +25,6 @@ import com.deliverytech.delivery.repository.PedidoRepository;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
 import com.deliverytech.delivery.service.PedidoService;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -274,7 +276,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     // Mapear Cliente
     if (pedido.getCliente() != null) {
-      var clienteResponse = new com.deliverytech.delivery.dto.response.ClienteResponse(
+      var clienteResponse = new ClienteResponse(
           pedido.getCliente().getId(),
           pedido.getCliente().getNome(),
           pedido.getCliente().getEmail(),
@@ -287,7 +289,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     // Mapear Restaurante
     if (pedido.getRestaurante() != null) {
-      var restauranteResponse = new com.deliverytech.delivery.dto.response.RestauranteResponse(
+      var restauranteResponse = new RestauranteResponse(
           pedido.getRestaurante().getId(),
           pedido.getRestaurante().getNome(),
           pedido.getRestaurante().getEndereco(),

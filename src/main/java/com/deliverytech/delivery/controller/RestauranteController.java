@@ -1,12 +1,5 @@
 package com.deliverytech.delivery.controller;
 
-import com.deliverytech.delivery.dto.request.AtualizarStatusRestauranteRequest;
-import com.deliverytech.delivery.dto.request.RestauranteRequest;
-import com.deliverytech.delivery.dto.response.RestauranteResponse;
-import com.deliverytech.delivery.dto.response.RestaurantePróximoResponse;
-import com.deliverytech.delivery.dto.response.TaxaEntregaResponse;
-import com.deliverytech.delivery.service.RestauranteService;
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -20,6 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.deliverytech.delivery.dto.restaurante.request.AtualizarStatusRestauranteRequest;
+import com.deliverytech.delivery.dto.restaurante.request.RestauranteRequest;
+import com.deliverytech.delivery.dto.restaurante.response.RestaurantePróximoResponse;
+import com.deliverytech.delivery.dto.restaurante.response.RestauranteResponse;
+import com.deliverytech.delivery.dto.restaurante.response.TaxaEntregaResponse;
+import com.deliverytech.delivery.service.RestauranteService;
+import jakarta.validation.Valid;
 
 /**
  * Controller REST para gerenciar Restaurantes

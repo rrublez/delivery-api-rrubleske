@@ -1,10 +1,5 @@
 package com.deliverytech.delivery.controller;
 
-import com.deliverytech.delivery.dto.request.AtualizarDisponibilidadeProdutoRequest;
-import com.deliverytech.delivery.dto.request.ProdutoRequest;
-import com.deliverytech.delivery.dto.response.ProdutoResponse;
-import com.deliverytech.delivery.service.ProdutoService;
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -19,6 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.deliverytech.delivery.dto.produto.request.AtualizarDisponibilidadeProdutoRequest;
+import com.deliverytech.delivery.dto.produto.request.ProdutoRequest;
+import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
+import com.deliverytech.delivery.service.ProdutoService;
+import jakarta.validation.Valid;
 
 /**
  * Controller REST para gerenciar Produtos

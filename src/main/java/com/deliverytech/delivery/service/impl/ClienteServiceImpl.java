@@ -1,8 +1,8 @@
 package com.deliverytech.delivery.service.impl;
 
-import com.deliverytech.delivery.dto.request.ClienteRequest;
-import com.deliverytech.delivery.dto.response.ClienteResponse;
-import com.deliverytech.delivery.dto.response.RankingClienteResponse;
+import com.deliverytech.delivery.dto.cliente.request.ClienteRequest;
+import com.deliverytech.delivery.dto.cliente.response.ClienteResponse;
+import com.deliverytech.delivery.dto.shared.response.RankingClienteResponse;
 import com.deliverytech.delivery.entity.Cliente;
 import com.deliverytech.delivery.repository.ClienteRepository;
 import com.deliverytech.delivery.service.ClienteService;

@@ -1,12 +1,12 @@
 package com.deliverytech.delivery.service;
 
-import com.deliverytech.delivery.dto.request.AtualizarStatusRestauranteRequest;
-import com.deliverytech.delivery.dto.request.RestauranteRequest;
-import com.deliverytech.delivery.dto.response.RestauranteResponse;
-import com.deliverytech.delivery.dto.response.RestaurantePróximoResponse;
-import com.deliverytech.delivery.dto.response.TaxaEntregaResponse;
 import java.math.BigDecimal;
 import java.util.List;
+import com.deliverytech.delivery.dto.restaurante.request.AtualizarStatusRestauranteRequest;
+import com.deliverytech.delivery.dto.restaurante.request.RestauranteRequest;
+import com.deliverytech.delivery.dto.restaurante.response.RestaurantePróximoResponse;
+import com.deliverytech.delivery.dto.restaurante.response.RestauranteResponse;
+import com.deliverytech.delivery.dto.restaurante.response.TaxaEntregaResponse;
 
 public interface RestauranteService {
 

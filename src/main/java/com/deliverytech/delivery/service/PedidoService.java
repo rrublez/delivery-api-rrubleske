@@ -1,12 +1,12 @@
 package com.deliverytech.delivery.service;
 
-import com.deliverytech.delivery.dto.request.AtualizarStatusPedidoRequest;
-import com.deliverytech.delivery.dto.request.CalcularPedidoRequest;
-import com.deliverytech.delivery.dto.request.PedidoRequest;
-import com.deliverytech.delivery.dto.response.CalcularPedidoResponse;
-import com.deliverytech.delivery.dto.response.PedidoRelatorioResponse;
-import com.deliverytech.delivery.dto.response.PedidoResponse;
-import com.deliverytech.delivery.dto.response.VendasPorRestauranteResponse;
+import com.deliverytech.delivery.dto.pedido.request.AtualizarStatusPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.CalcularPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.PedidoRequest;
+import com.deliverytech.delivery.dto.pedido.response.CalcularPedidoResponse;
+import com.deliverytech.delivery.dto.pedido.response.PedidoRelatorioResponse;
+import com.deliverytech.delivery.dto.pedido.response.PedidoResponse;
+import com.deliverytech.delivery.dto.shared.response.VendasPorRestauranteResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,10 +1,10 @@
 package com.deliverytech.delivery.controller;
 
-import com.deliverytech.delivery.dto.request.AtualizarStatusPedidoRequest;
-import com.deliverytech.delivery.dto.request.CalcularPedidoRequest;
-import com.deliverytech.delivery.dto.request.PedidoRequest;
-import com.deliverytech.delivery.dto.response.CalcularPedidoResponse;
-import com.deliverytech.delivery.dto.response.PedidoResponse;
+import com.deliverytech.delivery.dto.pedido.request.AtualizarStatusPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.CalcularPedidoRequest;
+import com.deliverytech.delivery.dto.pedido.request.PedidoRequest;
+import com.deliverytech.delivery.dto.pedido.response.CalcularPedidoResponse;
+import com.deliverytech.delivery.dto.pedido.response.PedidoResponse;
 import com.deliverytech.delivery.service.PedidoService;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;

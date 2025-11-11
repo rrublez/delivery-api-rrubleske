@@ -1,7 +1,7 @@
 package com.deliverytech.delivery.controller;
 
-import com.deliverytech.delivery.dto.request.ClienteRequest;
-import com.deliverytech.delivery.dto.response.ClienteResponse;
+import com.deliverytech.delivery.dto.cliente.request.ClienteRequest;
+import com.deliverytech.delivery.dto.cliente.response.ClienteResponse;
 import com.deliverytech.delivery.service.ClienteService;
 import jakarta.validation.Valid;
 import java.util.List;
