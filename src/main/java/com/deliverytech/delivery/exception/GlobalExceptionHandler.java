@@ -6,20 +6,15 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /**
-   * Handles validation errors from @Valid annotation
-   * Returns HTTP 400 with detailed field validation errors
-   */
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex, WebRequest request) {
+  public ResponseEntity<ApiErrorResponse> handleValidationErrors(
+      MethodArgumentNotValidException ex) {
 
     List<ApiErrorResponse.FieldError> fieldErrors = new ArrayList<>();
 
@@ -40,28 +35,23 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST.value())
             .error("Erro de Validação")
             .message("Um ou mais campos contêm valores inválidos")
-            .path(request.getDescription(false).replace("uri=", ""))
+            .path(ex.getBindingResult().getObjectName())
             .errors(fieldErrors)
             .build();
 
     return ResponseEntity.badRequest().body(response);
   }
 
-  /**
-   * Handles generic exceptions
-   * Returns HTTP 500 with error details
-   */
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiErrorResponse> handleGlobalException(
-      Exception ex, WebRequest request) {
+  public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
 
     ApiErrorResponse response =
         ApiErrorResponse.builder()
             .timestamp(LocalDateTime.now())
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .error("Erro Interno do Servidor")
-            .message(ex.getMessage() != null ? ex.getMessage() : "Erro inesperado ocorreu")
-            .path(request.getDescription(false).replace("uri=", ""))
+            .message(ex.getMessage() != null ? ex.getMessage() : "Erro inesperado")
+            .path("/error")
             .build();
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

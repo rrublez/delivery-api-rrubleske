@@ -1,10 +1,20 @@
 package com.deliverytech.delivery.dto.shared.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(name = "RankingClienteResponse", description = "Response com ranking de clientes mais ativos")
 public class RankingClienteResponse {
 
+  @Schema(description = "ID do cliente", example = "1")
   private Long clienteId;
+  
+  @Schema(description = "Nome do cliente", example = "João Silva")
   private String clienteNome;
+  
+  @Schema(description = "Email do cliente", example = "joao@example.com")
   private String email;
+  
+  @Schema(description = "Total de pedidos realizados", example = "15")
   private Long totalPedidos;
 
   public RankingClienteResponse() {

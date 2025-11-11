@@ -1,16 +1,31 @@
 package com.deliverytech.delivery.dto.pedido.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Schema(name = "PedidoRelatorioResponse", description = "Response com dados resumidos de pedido para relatórios")
 public class PedidoRelatorioResponse {
 
+  @Schema(description = "ID do pedido", example = "1")
   private Long pedidoId;
+  
+  @Schema(description = "Número do pedido", example = "PED-2025-001")
   private String numeroPedido;
+  
+  @Schema(description = "Status do pedido", example = "ENTREGUE")
   private String status;
+  
+  @Schema(description = "Nome do cliente", example = "João Silva")
   private String clienteNome;
+  
+  @Schema(description = "Nome do restaurante", example = "Pizzaria Dom Pedro")
   private String restauranteNome;
+  
+  @Schema(description = "Valor total do pedido", example = "89.90")
   private BigDecimal valorTotal;
+  
+  @Schema(description = "Data e hora do pedido", example = "2025-01-15T14:30:00")
   private LocalDateTime dataPedido;
 
   public PedidoRelatorioResponse() {

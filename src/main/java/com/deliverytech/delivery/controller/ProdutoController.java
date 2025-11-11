@@ -2,6 +2,12 @@ package com.deliverytech.delivery.controller;
 
 import java.math.BigDecimal;
 import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +32,7 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping("/api/produtos")
+@Tag(name = "Produtos", description = "APIs para gerenciar produtos e categorias")
 public class ProdutoController {
 
   private final ProdutoService produtoService;
@@ -41,6 +48,11 @@ public class ProdutoController {
    * Response: 201 Created com ProdutoResponse
    */
   @PostMapping
+  @Operation(summary = "Criar novo produto", description = "Cria um novo produto com as informações fornecidas")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Produto criado com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Dados inválidos")
+  })
   public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request) {
     var response = produtoService.criarProduto(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -54,7 +66,13 @@ public class ProdutoController {
    * Error: 404 Not Found se não existir
    */
   @GetMapping("/{id}")
-  public ResponseEntity<ProdutoResponse> obterPorId(@PathVariable Long id) {
+  @Operation(summary = "Obter produto por ID", description = "Retorna os detalhes de um produto específico")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Produto encontrado"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+  })
+  public ResponseEntity<ProdutoResponse> obterPorId(
+      @Parameter(description = "ID do produto") @PathVariable Long id) {
     var response = produtoService.obterPorId(id);
     return ResponseEntity.ok(response);
   }
@@ -68,8 +86,14 @@ public class ProdutoController {
    * Error: 404 Not Found
    */
   @PutMapping("/{id}")
+  @Operation(summary = "Atualizar produto completo", description = "Atualiza todos os campos de um produto existente")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+  })
   public ResponseEntity<ProdutoResponse> atualizar(
-      @PathVariable Long id,
+      @Parameter(description = "ID do produto") @PathVariable Long id,
       @Valid @RequestBody ProdutoRequest request) {
     var response = produtoService.atualizarProduto(id, request);
     return ResponseEntity.ok(response);
@@ -83,7 +107,12 @@ public class ProdutoController {
    * Error: 404 Not Found se não existir
    */
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletar(@PathVariable Long id) {
+  @Operation(summary = "Deletar produto", description = "Remove um produto do sistema")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Produto deletado com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+  })
+  public ResponseEntity<Void> deletar(@Parameter(description = "ID do produto") @PathVariable Long id) {
     produtoService.deletarProduto(id);
     return ResponseEntity.noContent().build();
   }
@@ -101,8 +130,13 @@ public class ProdutoController {
    * { "disponivel": false }
    */
   @PatchMapping("/{id}/disponibilidade")
+  @Operation(summary = "Atualizar disponibilidade do produto", description = "Altera o status de disponibilidade de um produto")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Disponibilidade atualizada com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+  })
   public ResponseEntity<ProdutoResponse> atualizarDisponibilidade(
-      @PathVariable Long id,
+      @Parameter(description = "ID do produto") @PathVariable Long id,
       @Valid @RequestBody AtualizarDisponibilidadeProdutoRequest request) {
     var response = produtoService.atualizarDisponibilidade(id, request);
     return ResponseEntity.ok(response);
@@ -115,8 +149,13 @@ public class ProdutoController {
    * Response: 200 OK com lista de ProdutoResponse
    */
   @GetMapping("/restaurante/{restauranteId}")
+  @Operation(summary = "Listar produtos por restaurante", description = "Retorna todos os produtos de um restaurante específico")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Produtos listados com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Restaurante não encontrado")
+  })
   public ResponseEntity<List<ProdutoResponse>> findByRestauranteId(
-      @PathVariable Long restauranteId) {
+      @Parameter(description = "ID do restaurante") @PathVariable Long restauranteId) {
     var response = produtoService.findByRestauranteId(restauranteId);
     return ResponseEntity.ok(response);
   }
@@ -128,7 +167,13 @@ public class ProdutoController {
    * Response: 200 OK com lista de ProdutoResponse
    */
   @GetMapping("/categoria/{categoria}")
-  public ResponseEntity<List<ProdutoResponse>> findByCategoria(@PathVariable String categoria) {
+  @Operation(summary = "Listar produtos por categoria", description = "Retorna todos os produtos de uma categoria específica")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Produtos listados com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+  })
+  public ResponseEntity<List<ProdutoResponse>> findByCategoria(
+      @Parameter(description = "Nome da categoria") @PathVariable String categoria) {
     var response = produtoService.findByCategoria(categoria);
     return ResponseEntity.ok(response);
   }
@@ -144,7 +189,12 @@ public class ProdutoController {
    * GET /api/produtos/buscar?nome=Margarita
    */
   @GetMapping("/buscar")
-  public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
+  @Operation(summary = "Buscar produtos por nome", description = "Retorna produtos que contenham o nome informado (case-insensitive)")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Produtos encontrados")
+  })
+  public ResponseEntity<List<ProdutoResponse>> buscarPorNome(
+      @Parameter(description = "Nome ou parte do nome do produto") @RequestParam String nome) {
     var response = produtoService.findByNome(nome);
     return ResponseEntity.ok(response);
   }
@@ -152,25 +202,33 @@ public class ProdutoController {
   // ==================== MÉTODOS MANTIDOS PARA COMPATIBILIDADE ====================
 
   @GetMapping("/disponivel")
+  @Operation(summary = "Listar produtos disponíveis", description = "Retorna todos os produtos marcados como disponíveis")
+  @ApiResponse(responseCode = "200", description = "Produtos disponíveis listados")
   public ResponseEntity<List<ProdutoResponse>> findByDisponivelTrue() {
     var response = produtoService.findByDisponivelTrue();
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/preco-maximo")
+  @Operation(summary = "Listar produtos por preço máximo", description = "Retorna produtos com preço menor ou igual ao informado")
+  @ApiResponse(responseCode = "200", description = "Produtos filtrados por preço")
   public ResponseEntity<List<ProdutoResponse>> findByPrecoLessThanEqual(
-      @RequestParam BigDecimal preco) {
+      @Parameter(description = "Preço máximo") @RequestParam BigDecimal preco) {
     var response = produtoService.findByPrecoLessThanEqual(preco);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/relatorio/mais-vendidos")
+  @Operation(summary = "Relatório de produtos mais vendidos", description = "Retorna ranking dos produtos mais vendidos")
+  @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso")
   public ResponseEntity<List<Object>> obterProdutosMaisVendidos() {
     var response = produtoService.obterProdutosMaisVendidos();
     return ResponseEntity.ok(new java.util.ArrayList<>(response));
   }
 
   @GetMapping("/relatorio/faturamento-por-categoria")
+  @Operation(summary = "Faturamento por categoria", description = "Retorna faturamento total agrupado por categoria de produtos")
+  @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso")
   public ResponseEntity<List<Object>> obterFaturamentoPorCategoria() {
     var response = produtoService.obterFaturamentoPorCategoria();
     return ResponseEntity.ok(new java.util.ArrayList<>(response));
