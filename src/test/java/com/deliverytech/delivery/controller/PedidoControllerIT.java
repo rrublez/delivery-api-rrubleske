@@ -1,9 +1,7 @@
 package com.deliverytech.delivery.controller;
 
 import com.deliverytech.delivery.dto.pedido.request.PedidoRequest;
-import com.deliverytech.delivery.dto.pedido.request.AtualizarStatusPedidoRequest;
 import com.deliverytech.delivery.entity.Cliente;
-import com.deliverytech.delivery.entity.Pedido;
 import com.deliverytech.delivery.entity.Produto;
 import com.deliverytech.delivery.entity.Restaurante;
 import com.deliverytech.delivery.repository.ClienteRepository;
@@ -24,8 +22,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashSet;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,34 +60,34 @@ class PedidoControllerIT {
   private Produto produto;
   private PedidoRequest validRequest;
 
-  @BeforeEach
+    @BeforeEach
   void setUp() {
-    clienteRepository.deleteAll();
-    restauranteRepository.deleteAll();
-    produtoRepository.deleteAll();
     pedidoRepository.deleteAll();
+    produtoRepository.deleteAll();
+    restauranteRepository.deleteAll();
+    clienteRepository.deleteAll();
 
-    // Criar cliente com dados únicos
+    // Criar cliente usando setters
     cliente = new Cliente();
     cliente.setNome("João Silva");
-    cliente.setEmail("joao@test" + System.currentTimeMillis() + ".com");
-    cliente.setCpf("1234567890" + (System.currentTimeMillis() % 10));
+    cliente.setEmail("joao@test.com");
+    cliente.setCpf("12345678900");
     cliente.setTelefone("11999999999");
     cliente.setAtivo(true);
     cliente = clienteRepository.save(cliente);
 
-    // Criar restaurante com dados únicos
+    // Criar restaurante usando setters
     restaurante = new Restaurante();
     restaurante.setNome("Pizzaria Central");
     restaurante.setEndereco("Rua Principal, 100");
-    restaurante.setTelefone("113333333" + (System.currentTimeMillis() % 100));
-    restaurante.setCnpj("1234567800019" + (System.currentTimeMillis() % 10));
+    restaurante.setTelefone("1133333333");
+    restaurante.setCnpj("12345678000190");
     restaurante.setRamoAtividade("Pizzaria");
     restaurante.setAtivo(true);
     restaurante.setTaxaEntrega(BigDecimal.valueOf(5.00));
     restaurante = restauranteRepository.save(restaurante);
 
-    // Criar produto
+    // Criar produto usando setters
     produto = new Produto();
     produto.setNome("Pizza Margherita");
     produto.setDescricao("Pizza tradicional");
@@ -102,11 +98,18 @@ class PedidoControllerIT {
 
     // Request padrão
     validRequest = new PedidoRequest();
-    validRequest.setNumeroPedido("PED-2025-" + (System.currentTimeMillis() % 100));
+    validRequest.setNumeroPedido("PED-2025-001");
     validRequest.setClienteId(cliente.getId());
     validRequest.setRestauranteId(restaurante.getId());
     validRequest.setStatus("PENDENTE");
-    validRequest.setItens(new java.util.ArrayList<>());
+    
+    // Criar itens do pedido
+    java.util.List<com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest> itens = new java.util.ArrayList<>();
+    com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest item = new com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest();
+    item.setProdutoId(produto.getId());
+    item.setQuantidade(2);
+    itens.add(item);
+    validRequest.setItens(itens);
   }
 
   @Nested
