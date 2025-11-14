@@ -1,0 +1,21 @@
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    # Customizações
+    operations-sorter: method
+    tags-sorter: alpha
+    display-operation-id: false
+    deep-linking: true
+    default-models-expand-depth: 1
+    default-model-expand-depth: 1
+    filter: false
+    show-extensions: false
+    show-common-extensions: false
+  # Configurações gerais
+  show-actuator: false
+  use-management-port: false
+  writer-with-default-pretty-printer: true

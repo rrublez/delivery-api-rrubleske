@@ -1,0 +1,510 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Delivery API - Complete Test Collection",
+  "dateExport": "2024-01-15",
+  "version": "1.1",
+  "folders": [
+    {
+      "name": "Clientes",
+      "requests": [
+        {
+          "name": "Criar Cliente",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/clientes",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "João Silva",
+            "email": "joao@example.com",
+            "cpf": "12345678901",
+            "telefone": "11999999999",
+            "ativo": true
+          },
+          "tests": [
+            "Status code is 201",
+            "Response has 'id' field",
+            "Response status is 'success'"
+          ]
+        },
+        {
+          "name": "Listar Clientes",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/clientes",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Obter Cliente por ID",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/clientes/{{clienteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200",
+            "Response has 'id' field"
+          ]
+        },
+        {
+          "name": "Atualizar Cliente",
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/clientes/{{clienteId}}",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "João Silva Atualizado",
+            "email": "joao.updated@example.com",
+            "cpf": "12345678901",
+            "telefone": "11988888888",
+            "ativo": true
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Deletar Cliente",
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/clientes/{{clienteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 204"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "requests": [
+        {
+          "name": "Criar Produto",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/produtos",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Pizza Margherita",
+            "descricao": "Pizza tradicional com molho de tomate e mozzarela",
+            "preco": 35.00,
+            "categoria": "Pizza",
+            "disponivel": true,
+            "restauranteId": "{{restauranteId}}"
+          },
+          "tests": [
+            "Status code is 201",
+            "Response has 'id' field"
+          ]
+        },
+        {
+          "name": "Listar Produtos",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/produtos",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Produtos por Restaurante",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/produtos/restaurante/{{restauranteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Produtos Disponíveis",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/produtos?disponivel=true",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Produtos por Categoria",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/produtos/categoria/Pizza",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Buscar Produto",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/produtos/{{produtoId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Atualizar Produto",
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/produtos/{{produtoId}}",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Pizza Margherita Premium",
+            "descricao": "Pizza tradicional premium",
+            "preco": 45.00,
+            "categoria": "Pizza",
+            "disponivel": true,
+            "restauranteId": "{{restauranteId}}"
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Atualizar Disponibilidade",
+          "method": "PATCH",
+          "url": "{{baseUrl}}/api/produtos/{{produtoId}}/disponibilidade",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "disponivel": false
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Deletar Produto",
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/produtos/{{produtoId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 204"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Restaurantes",
+      "requests": [
+        {
+          "name": "Criar Restaurante",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/restaurantes",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Pizzaria Central",
+            "endereco": "Rua Principal, 100",
+            "telefone": "1133333333",
+            "cnpj": "12345678000190",
+            "ramoAtividade": "Pizzaria",
+            "ativo": true,
+            "taxaEntrega": 5.00
+          },
+          "tests": [
+            "Status code is 201",
+            "Response has 'id' field"
+          ]
+        },
+        {
+          "name": "Listar Restaurantes",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Restaurantes por Ramo",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes?ramo=Pizzaria",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Restaurantes por Categoria",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes/categoria/Pizzaria",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Restaurantes Ativos",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes?ativo=true",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Restaurantes com Taxa Máxima",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes/taxa-maxima?taxa=10",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Buscar Restaurante",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Atualizar Restaurante",
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Pizzaria Central Premium",
+            "endereco": "Rua Principal, 150",
+            "telefone": "1133333334",
+            "cnpj": "12345678000190",
+            "ramoAtividade": "Pizzaria",
+            "ativo": true,
+            "taxaEntrega": 7.00
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Atualizar Status",
+          "method": "PATCH",
+          "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/status",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "ativo": false
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "requests": [
+        {
+          "name": "Criar Pedido",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/pedidos",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "clienteId": "{{clienteId}}",
+            "restauranteId": "{{restauranteId}}",
+            "enderecoEntrega": "Rua B, 200",
+            "status": "PENDENTE"
+          },
+          "tests": [
+            "Status code is 201",
+            "Response has 'id' field"
+          ]
+        },
+        {
+          "name": "Listar Pedidos",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/pedidos",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Pedidos por Cliente",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/pedidos/clientes/{{clienteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Pedidos por Restaurante",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/pedidos/restaurantes/{{restauranteId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Pedidos por Status",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/pedidos/status/PENDENTE",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Buscar Pedido",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Atualizar Status Pedido",
+          "method": "PATCH",
+          "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/status",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "status": "ENTREGUE"
+          },
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Calcular Total Pedido",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/pedidos/calcular",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "clienteId": "{{clienteId}}",
+            "restauranteId": "{{restauranteId}}",
+            "enderecoEntrega": "Rua C, 300"
+          },
+          "tests": [
+            "Status code is 200",
+            "Response has 'total' field"
+          ]
+        },
+        {
+          "name": "Cancelar Pedido",
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
+          "headers": {},
+          "tests": [
+            "Status code is 204"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Relatórios",
+      "requests": [
+        {
+          "name": "Total de Vendas",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/relatorios/total-vendas",
+          "headers": {},
+          "tests": [
+            "Status code is 200",
+            "Response has 'total' field"
+          ]
+        },
+        {
+          "name": "Vendas por Período",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/relatorios/vendas-periodo?dataInicio=2024-01-01&dataFim=2024-01-31",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Pedidos por Status",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/relatorios/pedidos-status",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Restaurante mais Vendedor",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/relatorios/restaurante-top",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        },
+        {
+          "name": "Produto mais Vendido",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/relatorios/produto-top",
+          "headers": {},
+          "tests": [
+            "Status code is 200"
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "name": "Local Development",
+      "variables": {
+        "baseUrl": "http://localhost:8080",
+        "clienteId": "1",
+        "restauranteId": "1",
+        "produtoId": "1",
+        "pedidoId": "1"
+      }
+    },
+    {
+      "name": "Production",
+      "variables": {
+        "baseUrl": "https://api.deliverytech.com",
+        "clienteId": "",
+        "restauranteId": "",
+        "produtoId": "",
+        "pedidoId": ""
+      }
+    }
+  ],
+  "notes": {
+    "setup": [
+      "1. Importe esta coleção no Postman ou Thunder Client",
+      "2. Configure as variáveis de ambiente (baseUrl, clienteId, restauranteId, etc)",
+      "3. Execute a sequência recomendada: Restaurantes → Clientes → Produtos → Pedidos → Relatórios",
+      "4. Use os IDs retornados nas respostas para popular os valores das variáveis"
+    ],
+    "testingStrategy": [
+      "SUCCESS PATH: Crie um restaurante, depois cliente, depois produtos, depois pedido",
+      "VALIDATION ERRORS: Teste criar com campos obrigatórios vazios",
+      "NOT FOUND: Teste buscar IDs inexistentes (ex: /clientes/9999)",
+      "CONFLICT: Teste criar cliente com email duplicado ou restaurante com CNPJ duplicado",
+      "INTERNAL SERVER ERROR: Simule com dados malformados"
+    ],
+    "httpCodes": {
+      "200": "OK - Requisição bem-sucedida com retorno de dados",
+      "201": "Created - Recurso criado com sucesso",
+      "204": "No Content - Operação bem-sucedida sem conteúdo de retorno",
+      "400": "Bad Request - Erro na validação ou dados malformados",
+      "404": "Not Found - Recurso não encontrado",
+      "409": "Conflict - Conflito de dados (email/CNPJ duplicado)",
+      "500": "Internal Server Error - Erro no servidor"
+    }
+  }
+}

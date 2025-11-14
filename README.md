@@ -127,7 +127,17 @@ Content-Type: application/json
 ---
 
 ### 🏪 Restaurante Controller
-Gerenciamento de restaurantes
+Gerenciamento de restaurantes com **ciclo completo** (CRUD + Relatórios)
+
+#### CRUD Completo
+
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `GET` | `/api/restaurantes` | Listar com filtros | ✅ |
+| `POST` | `/api/restaurantes` | Criar | ✅ |
+| `GET` | `/api/restaurantes/{id}` | Obter por ID | ✅ |
+| `PUT` | `/api/restaurantes/{id}` | Atualizar completo | ✅ |
+| `PATCH` | `/api/restaurantes/{id}/status` | Ativar/desativar | ✅ |
 
 #### Criar Restaurante
 ```http
@@ -150,14 +160,62 @@ Content-Type: application/json
 #### Consultar Restaurantes
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/restaurantes/ramo/{ramo}` | Buscar por categoria/ramo | - |
-| `GET` | `/api/restaurantes/ativo` | Listar restaurantes ativos | - |
-| `GET` | `/api/restaurantes/taxa-maxima` | Filtrar por taxa máxima | `?taxa=5.00` |
+| `GET` | `/api/restaurantes` | Listar com filtros | `?ramo=Pizzaria&ativo=true` |
+| `GET` | `/api/restaurantes/{id}` | Buscar por ID | - |
+| `GET` | `/api/restaurantes/categoria/{categoria}` | Por categoria | - |
+
+#### Atualizar Restaurante
+```http
+PUT /api/restaurantes/{id}
+Content-Type: application/json
+
+{
+  "nome": "Pizza Palace Premium",
+  "endereco": "Avenida Paulista, 2000",
+  "telefone": "1133334445",
+  "cnpj": "11222333000181",
+  "ramoAtividade": "Pizzaria Premium",
+  "ativo": true,
+  "taxaEntrega": 7.50
+}
+```
+**Resposta:** 200 OK
+
+#### Ativar/Desativar (PATCH)
+```http
+PATCH /api/restaurantes/{id}/status
+Content-Type: application/json
+
+{
+  "ativo": false
+}
+```
+**Resposta:** 200 OK
+
+#### Relatórios & Cálculos 📊
+| Método | Endpoint | Descrição | Query |
+|--------|----------|-----------|-------|
+| `GET` | `/api/restaurantes/{id}/taxa-entrega/{cep}` | Calcular taxa | - |
+| `GET` | `/api/restaurantes/proximos/{cep}` | Restaurantes próximos | `?raio=10` |
+
+**Exemplo - Calcular taxa:**
+```bash
+GET /api/restaurantes/1/taxa-entrega/90010100
+```
+Retorna distância e taxa calculadas para o CEP
+
+**Exemplo - Restaurantes próximos:**
+```bash
+GET /api/restaurantes/proximos/90010100?raio=5
+```
+Retorna restaurantes ativos dentro do raio (km), ordenados por distância
+
+📖 **[Documentação Completa dos Endpoints →](./Docs/ENDPOINTS_RESTAURANTE.md)**
 
 ---
 
 ### 🍕 Produto Controller
-Gerenciamento de produtos
+Gerenciamento de produtos (CRUD + Filtros)
 
 #### Criar Produto
 ```http
@@ -173,14 +231,24 @@ Content-Type: application/json
 }
 ```
 **Resposta:** 201 Created  
-**Validações:** Preço > 0, Nome, Descrição, Categoria
+**Validações:** Nome (3-100), Descrição (5-255), Preço (>0), Categoria (3-20)
+
+#### CRUD Completo
+| Método | Endpoint | Descrição | Query |
+|--------|----------|-----------|-------|
+| `POST` | `/api/produtos` | Criar produto | - |
+| `GET` | `/api/produtos/{id}` | Buscar por ID | - |
+| `PUT` | `/api/produtos/{id}` | Atualizar produto | - |
+| `DELETE` | `/api/produtos/{id}` | Remover produto | - |
+| `PATCH` | `/api/produtos/{id}/disponibilidade` | Toggle disponibilidade | - |
 
 #### Consultar Produtos
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/produtos/restaurante/{id}` | Produtos de um restaurante | - |
+| `GET` | `/api/restaurantes/{restauranteId}/produtos` | Produtos de um restaurante | - |
 | `GET` | `/api/produtos/disponivel` | Produtos disponíveis | - |
 | `GET` | `/api/produtos/categoria/{categoria}` | Produtos por categoria | - |
+| `GET` | `/api/produtos/buscar` | Buscar por nome (LIKE) | `?nome=Margherita` |
 | `GET` | `/api/produtos/preco-maximo` | Filtrar por preço máximo | `?preco=50.00` |
 
 #### Relatórios 📊
@@ -192,7 +260,16 @@ Content-Type: application/json
 ---
 
 ### 📦 Pedido Controller
-Gerenciamento de pedidos (CRUD + Relatórios)
+Gerenciamento de pedidos com **ciclo completo** (CRUD + Filtros + Cálculos + Relatórios)
+
+#### CRUD Completo
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `POST` | `/api/pedidos` | Criar pedido | ✅ |
+| `GET` | `/api/pedidos/{id}` | Obter pedido completo | ✅ |
+| `GET` | `/api/pedidos` | Listar com filtros | ✅ |
+| `PATCH` | `/api/pedidos/{id}/status` | Atualizar status | ✅ |
+| `DELETE` | `/api/pedidos/{id}` | Cancelar pedido | ✅ |
 
 #### Criar Pedido
 ```http
@@ -200,9 +277,64 @@ POST /api/pedidos
 Content-Type: application/json
 
 {
-  "numeroPedido": "PEDIDO-001",
+  "numeroPedido": "PED-2025-001",
   "status": "PENDENTE",
   "clienteId": 1,
+  "restauranteId": 1,
+  "itens": [
+    {
+      "produtoId": 1,
+      "quantidade": 2,
+      "precoUnitario": 45.00,
+      "observacoes": "Sem cebola"
+    }
+  ]
+}
+```
+**Resposta:** 201 Created  
+**Validações:** Número (5-20 chars), Status válido, Mínimo 1 item, Quantidade > 0, Preço > 0
+
+#### Obter Pedido (GET /{id})
+```http
+GET /api/pedidos/1
+```
+Retorna pedido completo com todos seus detalhes e itens
+
+#### Listar com Filtros (GET)
+```http
+GET /api/pedidos?status=PENDENTE&dataInicial=2025-11-01T00:00:00&dataFinal=2025-11-30T23:59:59
+```
+**Query Params:** `status`, `dataInicial`, `dataFinal` (todos opcionais)
+
+#### Atualizar Status (PATCH)
+```http
+PATCH /api/pedidos/{id}/status
+Content-Type: application/json
+
+{
+  "status": "CONFIRMADO"
+}
+```
+**Valores válidos:** PENDENTE, CONFIRMADO, PREPARANDO, SAIU_ENTREGA, ENTREGUE, CANCELADO
+
+#### Cancelar Pedido (DELETE)
+```http
+DELETE /api/pedidos/1
+```
+Muda status para CANCELADO (204 No Content)
+
+#### Filtros Adicionais
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/clientes/{clienteId}/pedidos` | Histórico do cliente |
+| `GET` | `/api/restaurantes/{restauranteId}/pedidos` | Pedidos do restaurante |
+
+#### Cálculo (sem salvar) 🧮
+```http
+POST /api/pedidos/calcular
+Content-Type: application/json
+
+{
   "restauranteId": 1,
   "itens": [
     {
@@ -213,24 +345,126 @@ Content-Type: application/json
   ]
 }
 ```
-**Resposta:** 201 Created  
-**Validações:** Número único, Status (PENDENTE|ENTREGUE|CANCELADO), Mínimo 1 item, Quantidade > 0
+**Resposta:**
+```json
+{
+  "subtotal": 90.00,
+  "taxaEntrega": 5.00,
+  "valorTotal": 95.00,
+  "itens": [...]
+}
+```
 
-#### Consultar Pedidos
+#### Relatórios & Filtros Legados 📊
 | Método | Endpoint | Descrição | Query |
 |--------|----------|-----------|-------|
-| `GET` | `/api/pedidos/cliente/{clienteId}` | Pedidos de um cliente | - |
-| `GET` | `/api/pedidos/status/{status}` | Pedidos por status | - |
-| `GET` | `/api/pedidos/top-10-maiores` | Top 10 maiores pedidos | - |
-| `GET` | `/api/pedidos/data-range` | Pedidos em período | `?dataInicial=2025-01-01T00:00:00&dataFinal=2025-12-31T23:59:59` |
-| `GET` | `/api/pedidos/restaurante/{id}/top-5` | Top 5 pedidos de restaurante | - |
+| `GET` | `/api/pedidos/cliente/{clienteId}` | Pedidos de cliente (legado) | - |
+| `GET` | `/api/pedidos/status/{status}` | Por status (legado) | - |
+| `GET` | `/api/pedidos/top-10-maiores` | Top 10 maiores | - |
+| `GET` | `/api/pedidos/data-range` | Por período (legado) | `?dataInicial=...&dataFinal=...` |
+| `GET` | `/api/pedidos/restaurante/{id}/top-5` | Top 5 de restaurante | - |
+| `GET` | `/api/pedidos/relatorio/vendas-por-restaurante` | Vendas por restaurante | - |
+| `GET` | `/api/pedidos/relatorio/valor-acima` | Valor acima de X | `?valor=100` |
+| `GET` | `/api/pedidos/relatorio/periodo-status` | Período + status | `?dataInicial=...&dataFinal=...&status=...` |
 
-#### Relatórios 📊
-| Método | Endpoint | Descrição | Retorno | Query |
-|--------|----------|-----------|---------|-------|
-| `GET` | `/api/pedidos/relatorio/vendas-por-restaurante` | Total de vendas agrupado | JSON Array | - |
-| `GET` | `/api/pedidos/relatorio/valor-acima` | Pedidos com valor mínimo | JSON Array | `?valor=100` |
-| `GET` | `/api/pedidos/relatorio/periodo-status` | Filtro período + status | JSON Array | `?dataInicial=...&dataFinal=...&status=ENTREGUE` |
+📖 **[Documentação Completa dos Endpoints →](./Docs/ENDPOINTS_PEDIDOS.md)**
+
+---
+
+### 📊 Relatório Controller
+Consolidação de todos os endpoints de relatório em um único controlador bem organizado
+
+#### Endpoints Disponíveis
+| Método | Endpoint | Descrição | Retorno |
+|--------|----------|-----------|---------|
+| `GET` | `/api/relatorios/vendas-por-restaurante` | Vendas totais por restaurante | JSON Array com agregações |
+| `GET` | `/api/relatorios/produtos-mais-vendidos` | Top 10 produtos mais vendidos | JSON Array ordenado por quantidade |
+| `GET` | `/api/relatorios/clientes-ativos` | Ranking de clientes por nº de pedidos | JSON Array ordenado por pedidos |
+| `GET` | `/api/relatorios/pedidos-por-periodo` | Pedidos em período, com filtro de status | JSON Array com query params |
+
+#### 1. Vendas por Restaurante
+```http
+GET /api/relatorios/vendas-por-restaurante
+```
+
+**Resposta:**
+```json
+[
+  {
+    "restauranteId": 1,
+    "restauranteNome": "Pizzaria XYZ",
+    "totalPedidos": 15,
+    "totalVendas": 450.00,
+    "ticketMedio": 30.00
+  }
+]
+```
+
+#### 2. Produtos Mais Vendidos
+```http
+GET /api/relatorios/produtos-mais-vendidos
+```
+
+**Resposta:**
+```json
+[
+  {
+    "produtoId": 5,
+    "produtoNome": "Pizza Margherita",
+    "categoria": "Pizzas",
+    "quantidadeVendida": 250,
+    "faturamento": 2500.00
+  }
+]
+```
+
+#### 3. Clientes Ativos
+```http
+GET /api/relatorios/clientes-ativos
+```
+
+**Resposta:**
+```json
+[
+  {
+    "clienteId": 1,
+    "clienteNome": "João Silva",
+    "email": "joao@email.com",
+    "totalPedidos": 25
+  }
+]
+```
+
+#### 4. Pedidos por Período
+```http
+GET /api/relatorios/pedidos-por-periodo?dataInicial=2025-01-01T00:00:00&dataFinal=2025-12-31T23:59:59&status=ENTREGUE
+```
+
+**Query Params:**
+- `dataInicial` (obrigatório): Início do período (ISO 8601)
+- `dataFinal` (obrigatório): Fim do período (ISO 8601)
+- `status` (opcional): Filtrar por status (PENDENTE, CONFIRMADO, ENTREGUE, CANCELADO)
+
+**Resposta:**
+```json
+[
+  {
+    "id": 1,
+    "numeroPedido": "PED-001",
+    "status": "ENTREGUE",
+    "clienteNome": "João Silva",
+    "restauranteNome": "Pizzaria XYZ",
+    "valorTotal": 85.50,
+    "dataPedido": "2025-11-10T14:30:00"
+  }
+]
+```
+
+**Validações:**
+- ❌ 400 Bad Request: Se dataInicial > dataFinal
+- ❌ 500 Internal Server Error: Erro no processamento
+
+📖 **[Documentação Completa dos Endpoints de Relatório →](./Docs/ENDPOINTS_RELATORIOS.md)**
 
 ---
 
