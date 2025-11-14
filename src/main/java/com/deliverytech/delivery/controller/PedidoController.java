@@ -28,6 +28,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller REST para gerenciar Pedidos
+ * Padronização: Utiliza códigos HTTP corretos e anotações OpenAPI
+ */
 @RestController
 @RequestMapping("/api/pedidos")
 @Tag(name = "Pedidos", description = "APIs para gerenciar pedidos de delivery")
@@ -39,6 +43,10 @@ public class PedidoController {
     this.pedidoService = pedidoService;
   }
 
+  /**
+   * POST /api/pedidos - Criar novo pedido
+   * Código: 201 Created ou 400 Bad Request
+   */
   @PostMapping
   @Operation(summary = "Criar novo pedido", description = "Cria um novo pedido com validação de produtos e cliente")
   @ApiResponses(value = {
@@ -51,9 +59,8 @@ public class PedidoController {
   }
 
   /**
-   * GET /api/pedidos/{id} - Buscar pedido completo
-   * @param id ID do pedido
-   * @return Pedido encontrado
+   * GET /api/pedidos/{id} - Buscar pedido por ID
+   * Código: 200 OK ou 404 Not Found
    */
   @GetMapping("/{id}")
   @Operation(summary = "Obter pedido por ID", description = "Retorna os detalhes completos de um pedido, incluindo itens e cliente")
@@ -67,11 +74,8 @@ public class PedidoController {
   }
 
   /**
-   * GET /api/pedidos - Listar com filtros (status, data)
-   * @param status Status do pedido (opcional)
-   * @param dataInicial Data inicial (opcional)
-   * @param dataFinal Data final (opcional)
-   * @return Lista de pedidos filtrados
+   * GET /api/pedidos - Listar pedidos com filtros opcionais
+   * Código: 200 OK
    */
   @GetMapping
   @Operation(summary = "Listar pedidos com filtros", description = "Retorna lista de pedidos com filtros opcionais por status e período")
@@ -85,10 +89,8 @@ public class PedidoController {
   }
 
   /**
-   * PATCH /api/pedidos/{id}/status - Atualizar status
-   * @param id ID do pedido
-   * @param request Novo status
-   * @return Pedido atualizado
+   * PATCH /api/pedidos/{id}/status - Atualizar status do pedido
+   * Código: 200 OK, 400 Bad Request ou 404 Not Found
    */
   @PatchMapping("/{id}/status")
   @Operation(summary = "Atualizar status do pedido", description = "Altera o status de um pedido existente")
@@ -106,8 +108,7 @@ public class PedidoController {
 
   /**
    * DELETE /api/pedidos/{id} - Cancelar pedido
-   * @param id ID do pedido
-   * @return Sem conteúdo
+   * Código: 204 No Content ou 404 Not Found
    */
   @DeleteMapping("/{id}")
   @Operation(summary = "Cancelar pedido", description = "Cancela um pedido existente")
@@ -121,9 +122,8 @@ public class PedidoController {
   }
 
   /**
-   * GET /api/clientes/{clienteId}/pedidos - Histórico do cliente
-   * @param clienteId ID do cliente
-   * @return Lista de pedidos do cliente
+   * GET /api/pedidos/clientes/{clienteId} - Histórico do cliente
+   * Código: 200 OK
    */
   @GetMapping("/clientes/{clienteId}")
   @Operation(summary = "Histórico de pedidos do cliente", description = "Retorna todos os pedidos realizado por um cliente específico")
@@ -135,9 +135,8 @@ public class PedidoController {
   }
 
   /**
-   * GET /api/restaurantes/{restauranteId}/pedidos - Pedidos do restaurante
-   * @param restauranteId ID do restaurante
-   * @return Lista de pedidos do restaurante
+   * GET /api/pedidos/restaurantes/{restauranteId} - Pedidos do restaurante
+   * Código: 200 OK
    */
   @GetMapping("/restaurantes/{restauranteId}")
   @Operation(summary = "Pedidos do restaurante", description = "Retorna todos os pedidos recebidos por um restaurante")
@@ -149,9 +148,8 @@ public class PedidoController {
   }
 
   /**
-   * POST /api/pedidos/calcular - Calcular total sem salvar
-   * @param request Dados para cálculo
-   * @return Cálculo com subtotal, taxa e total
+   * POST /api/pedidos/calcular - Calcular total do pedido
+   * Código: 200 OK ou 400 Bad Request
    */
   @PostMapping("/calcular")
   @Operation(summary = "Calcular total do pedido", description = "Calcula o total do pedido incluindo subtotal, taxa de entrega e impostos, sem salvar")
@@ -165,6 +163,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/cliente/{clienteId} - Buscar pedidos por cliente
+   * Código: 200 OK
+   */
   @GetMapping("/cliente/{clienteId}")
   @Operation(summary = "Buscar pedidos por cliente", description = "Retorna todos os pedidos de um cliente específico")
   @ApiResponse(responseCode = "200", description = "Pedidos encontrados")
@@ -174,6 +176,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/status/{status} - Buscar pedidos por status
+   * Código: 200 OK
+   */
   @GetMapping("/status/{status}")
   @Operation(summary = "Buscar pedidos por status", description = "Retorna todos os pedidos com um status específico")
   @ApiResponse(responseCode = "200", description = "Pedidos encontrados")
@@ -183,6 +189,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/top-10-maiores - Top 10 maiores pedidos
+   * Código: 200 OK
+   */
   @GetMapping("/top-10-maiores")
   @Operation(summary = "Top 10 maiores pedidos", description = "Retorna os 10 pedidos com maior valor total")
   @ApiResponse(responseCode = "200", description = "Top 10 listado")
@@ -191,6 +201,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/data-range - Buscar pedidos por período
+   * Código: 200 OK
+   */
   @GetMapping("/data-range")
   @Operation(summary = "Buscar pedidos por período", description = "Retorna pedidos dentro de um período específico")
   @ApiResponse(responseCode = "200", description = "Pedidos encontrados")
@@ -201,6 +215,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/restaurante/{restauranteId}/top-5 - Top 5 maiores pedidos por restaurante
+   * Código: 200 OK
+   */
   @GetMapping("/restaurante/{restauranteId}/top-5")
   @Operation(summary = "Top 5 maiores pedidos por restaurante", description = "Retorna os 5 maiores pedidos de um restaurante")
   @ApiResponse(responseCode = "200", description = "Top 5 listado")
@@ -210,6 +228,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/relatorio/vendas-por-restaurante - Relatório: Vendas por restaurante
+   * Código: 200 OK
+   */
   @GetMapping("/relatorio/vendas-por-restaurante")
   @Operation(summary = "Vendas por restaurante", description = "Retorna relatório de vendas totais agrupadas por restaurante")
   @ApiResponse(responseCode = "200", description = "Relatório gerado")
@@ -218,6 +240,10 @@ public class PedidoController {
     return ResponseEntity.ok(new java.util.ArrayList<>(response));
   }
 
+  /**
+   * GET /api/pedidos/relatorio/valor-acima - Pedidos com valor acima de
+   * Código: 200 OK
+   */
   @GetMapping("/relatorio/valor-acima")
   @Operation(summary = "Pedidos com valor acima de", description = "Retorna pedidos com valor total superior ao informado")
   @ApiResponse(responseCode = "200", description = "Pedidos encontrados")
@@ -227,6 +253,10 @@ public class PedidoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * GET /api/pedidos/relatorio/periodo-status - Relatório por período e status
+   * Código: 200 OK
+   */
   @GetMapping("/relatorio/periodo-status")
   @Operation(summary = "Relatório por período e status", description = "Retorna relatório de pedidos filtrados por período e status")
   @ApiResponse(responseCode = "200", description = "Relatório gerado")
@@ -237,5 +267,4 @@ public class PedidoController {
     var response = pedidoService.obterRelatorioByPeriodoAndStatus(dataInicial, dataFinal, status);
     return ResponseEntity.ok(new java.util.ArrayList<>(response));
   }
-
 }
