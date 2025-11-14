@@ -1,8 +1,6 @@
 package com.deliverytech.delivery.controller;
 
 import com.deliverytech.delivery.dto.produto.request.ProdutoRequest;
-import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
-import com.deliverytech.delivery.entity.Produto;
 import com.deliverytech.delivery.entity.Restaurante;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
@@ -56,24 +54,23 @@ class ProdutoControllerIT {
     restauranteRepository.deleteAll();
     produtoRepository.deleteAll();
 
-    // Criar restaurante com dados únicos
+    // Criar restaurante usando setters (sem @Builder)
     restaurante = new Restaurante();
     restaurante.setNome("Pizzaria Central");
     restaurante.setEndereco("Rua Principal, 100");
-    restaurante.setTelefone("113333333" + (System.currentTimeMillis() % 1000));
-    restaurante.setCnpj("1234567800019" + (System.currentTimeMillis() % 10));
+    restaurante.setTelefone("1133333333");
+    restaurante.setCnpj("12345678000190");
     restaurante.setRamoAtividade("Pizzaria");
     restaurante.setAtivo(true);
     restaurante.setTaxaEntrega(BigDecimal.valueOf(5.00));
     restaurante = restauranteRepository.save(restaurante);
 
-    // Request padrão
     validRequest = new ProdutoRequest();
     validRequest.setNome("Pizza Margherita");
     validRequest.setDescricao("Pizza tradicional com molho de tomate");
     validRequest.setPreco(BigDecimal.valueOf(35.00));
-    validRequest.setDisponivel(true);
     validRequest.setCategoria("Pizza");
+    validRequest.setDisponivel(true);
   }
 
   @Nested
