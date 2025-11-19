@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * Handler global de exceções da API
@@ -147,6 +149,21 @@ public class GlobalExceptionHandler {
         .map(Throwable::getMessage)
         .orElse(ex.getMessage()));
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
+  /**
+   * Handler para negações de autorização (403 Forbidden)
+   */
+  @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
+  public ResponseEntity<ErrorResponse> handleAuthorizationDenied(
+      Exception ex,
+      WebRequest request) {
+    ErrorResponse response = buildErrorResponse(
+        HttpStatus.FORBIDDEN,
+        "Acesso negado",
+        extractPath(request));
+    response.setDetails(ex.getClass().getSimpleName());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
   }
 
   /**

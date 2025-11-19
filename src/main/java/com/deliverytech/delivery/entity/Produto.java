@@ -11,14 +11,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "produtos")
 public class Produto {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @EqualsAndHashCode.Include
   private Long id;
 
   @Column(length = 100)

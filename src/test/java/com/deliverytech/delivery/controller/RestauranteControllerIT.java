@@ -3,6 +3,8 @@ package com.deliverytech.delivery.controller;
 import com.deliverytech.delivery.dto.restaurante.request.RestauranteRequest;
 import com.deliverytech.delivery.repository.RestauranteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.deliverytech.delivery.entity.Role;
+import com.deliverytech.delivery.support.TestAuthHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,6 +43,7 @@ class RestauranteControllerIT {
   private RestauranteRepository restauranteRepository;
 
   private RestauranteRequest validRequest;
+  private String adminToken;
 
   @BeforeEach
   void setUp() {
@@ -50,10 +53,16 @@ class RestauranteControllerIT {
     validRequest.setNome("Pizzaria Central");
     validRequest.setEndereco("Rua Principal, 100");
     validRequest.setTelefone("1133333333");
-    validRequest.setCnpj("12345678000190");
+    validRequest.setCnpj("04252011000110");
     validRequest.setRamoAtividade("Pizzaria");
     validRequest.setAtivo(true);
     validRequest.setTaxaEntrega(BigDecimal.valueOf(5.00));
+
+    try {
+      adminToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.ADMIN);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Nested
@@ -65,6 +74,7 @@ class RestauranteControllerIT {
     @Transactional
     void testCreateRestauranteSuccess() throws Exception {
       mockMvc.perform(post("/api/restaurantes")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -86,12 +96,13 @@ class RestauranteControllerIT {
       italianaRequest.setNome("Restaurante Italiano");
       italianaRequest.setEndereco("Rua Roma, 100");
       italianaRequest.setTelefone("1133333334");
-      italianaRequest.setCnpj("11111111000191");
+      italianaRequest.setCnpj("11222333000181");
       italianaRequest.setRamoAtividade("Italiana");
       italianaRequest.setAtivo(true);
       italianaRequest.setTaxaEntrega(BigDecimal.valueOf(6.00));
 
-      mockMvc.perform(post("/api/restaurantes")
+        mockMvc.perform(post("/api/restaurantes")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(italianaRequest)))
           .andExpect(status().isCreated());
@@ -99,6 +110,7 @@ class RestauranteControllerIT {
       // GET /api/restaurantes?categoria=Italiana&ativo=true
       // Resultado Esperado: Lista paginada com metadados
       mockMvc.perform(get("/api/restaurantes?ramo=Italiana&ativo=true")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))))
@@ -111,12 +123,14 @@ class RestauranteControllerIT {
     @DisplayName("✅ Deve listar todos os restaurantes")
     @Transactional
     void testListAllRestaurantes() throws Exception {
-      mockMvc.perform(post("/api/restaurantes")
+        mockMvc.perform(post("/api/restaurantes")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
-      mockMvc.perform(get("/api/restaurantes")
+        mockMvc.perform(get("/api/restaurantes")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", isA(java.util.ArrayList.class)));
@@ -132,6 +146,7 @@ class RestauranteControllerIT {
     @Transactional
     void testGetRestauranteSuccess() throws Exception {
       var createResponse = mockMvc.perform(post("/api/restaurantes")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -142,6 +157,7 @@ class RestauranteControllerIT {
       Long restauranteId = objectMapper.readTree(createResponse).get("id").asLong();
 
       mockMvc.perform(get("/api/restaurantes/" + restauranteId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.id", equalTo(restauranteId.intValue())));

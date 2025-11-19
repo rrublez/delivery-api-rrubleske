@@ -51,9 +51,9 @@ public class PedidoServiceImpl implements PedidoService {
   @Override
   public PedidoResponse criarPedido(PedidoRequest request) {
     var cliente = clienteRepository.findById(request.getClienteId())
-        .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+      .orElseThrow(() -> new IllegalArgumentException("Cliente inválido"));
     var restaurante = restauranteRepository.findById(request.getRestauranteId())
-        .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+      .orElseThrow(() -> new IllegalArgumentException("Restaurante inválido"));
 
     var pedido = new Pedido();
     pedido.setNumeroPedido(request.getNumeroPedido());
@@ -66,8 +66,8 @@ public class PedidoServiceImpl implements PedidoService {
     var valorTotal = BigDecimal.ZERO;
 
     for (PedidoProdutoRequest itemRequest : request.getItens()) {
-      var produto = produtoRepository.findById(itemRequest.getProdutoId())
-          .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        var produto = produtoRepository.findById(itemRequest.getProdutoId())
+          .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado"));
 
       var item = new PedidoProduto();
       item.setPedido(pedido);
@@ -163,8 +163,8 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional(readOnly = true)
   public PedidoResponse obterPorId(Long id) {
     return pedidoRepository.findById(id)
-        .map(this::mapearParaResponse)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+      .map(this::mapearParaResponse)
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
   }
 
   @Override
@@ -188,7 +188,7 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional
   public PedidoResponse atualizarStatus(Long id, AtualizarStatusPedidoRequest request) {
     var pedido = pedidoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
     pedido.setStatus(request.getStatus());
     var pedidoAtualizado = pedidoRepository.save(pedido);
     return mapearParaResponse(pedidoAtualizado);
@@ -198,7 +198,7 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional
   public void cancelarPedido(Long id) {
     var pedido = pedidoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
     pedido.setStatus("CANCELADO");
     pedidoRepository.save(pedido);
   }
@@ -222,14 +222,14 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional(readOnly = true)
   public CalcularPedidoResponse calcularTotal(CalcularPedidoRequest request) {
     var restaurante = restauranteRepository.findById(request.getRestauranteId())
-        .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Restaurante não encontrado"));
 
     var itens = new ArrayList<PedidoProdutoResponse>();
     var subtotal = BigDecimal.ZERO;
 
     for (PedidoProdutoRequest itemRequest : request.getItens()) {
-      var produto = produtoRepository.findById(itemRequest.getProdutoId())
-          .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        var produto = produtoRepository.findById(itemRequest.getProdutoId())
+          .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado"));
 
       var precoUnitario = itemRequest.getPrecoUnitario();
       var quantidade = itemRequest.getQuantidade();

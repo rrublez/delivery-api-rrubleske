@@ -27,5 +27,5 @@ info:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    com.deliverytech: DEBUG
+    org.springframework.security: ERROR
+    com.deliverytech: ERROR

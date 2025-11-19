@@ -41,14 +41,14 @@ public class ProdutoServiceImpl implements ProdutoService {
   @Transactional(readOnly = true)
   public ProdutoResponse obterPorId(Long id) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     return mapearParaResponse(produto);
   }
 
   @Override
   public ProdutoResponse atualizarProduto(Long id, ProdutoRequest request) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
     produto.setNome(request.getNome());
     produto.setDescricao(request.getDescricao());
@@ -63,14 +63,14 @@ public class ProdutoServiceImpl implements ProdutoService {
   @Override
   public void deletarProduto(Long id) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     produtoRepository.delete(produto);
   }
 
   @Override
   public ProdutoResponse atualizarDisponibilidade(Long id, AtualizarDisponibilidadeProdutoRequest request) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
     produto.setDisponivel(request.getDisponivel());
     var produtoAtualizado = produtoRepository.save(produto);
