@@ -23,8 +23,8 @@
 
 ## 🔐 Autenticação e Segurança
 
-- `POST /api/auth/register` e `POST /api/auth/login` são públicos para criar credenciais e validar dados.
-- Para os demais endpoints, use `Authorization: Bearer <token>` com as credenciais retornadas após o login (mantenha o `role` correto e reutilize o token até expirar em 24h).
+- `POST /api/auth/register` e `POST /api/auth/login` são públicos para criar credenciais e validar dados; `GET /api/auth/me` e todos os demais endpoints exigem `Authorization: Bearer <token>` retornado pelo login.
+- O `LoginResponse` inclui o JWT (`token`), o tipo (`Bearer`), o `expiresAt` e o objeto `user` com os dados públicos do usuário autenticado.
 - Usuários com `role=RESTAURANTE` podem informar o campo `restauranteId`; outras roles devem omitir esse campo.
 - Senhas são armazenadas com `BCrypt` e apenas contas com `ativo=true` conseguem acessar os recursos protegidos.
 

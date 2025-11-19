@@ -10,7 +10,8 @@ O `RelatorioController` consolida todos os endpoints de relatório em um único 
 
 ## 🔐 Autenticação e Segurança
 
-- Apenas `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` podem ser acessados sem credenciais.
+- Apenas `POST /api/auth/register`, `POST /api/auth/login` e os endpoints públicos (`/api/restaurantes`, `/api/produtos`, `/actuator/health`) ficam sem autenticação; `GET /api/auth/me` e os relatórios exigem `Authorization: Bearer <token>` retornado no login.
+- O `LoginResponse` retorna `token`, `tokenType`, `expiresAt` e o objeto `user` com os dados públicos do usuário autenticado.
 - Todos os endpoints de relatório demandam `Authorization: Bearer <token>` com `role` apropriado (`ADMIN`, `RESTAURANTE` ou `CLIENTE`).
 - Usuários inativos ou com `role` incorreto receberão `401 Unauthorized` mesmo com headers válidos.
 

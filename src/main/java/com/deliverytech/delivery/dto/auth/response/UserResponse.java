@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(name = "AuthResponse", description = "Retorno da API de autenticação")
-public class AuthResponse {
+@Schema(name = "UserResponse", description = "Dados públicos de um usuário autenticado")
+public class UserResponse {
 
     private Long id;
 
@@ -25,6 +25,4 @@ public class AuthResponse {
     private Long restauranteId;
 
     private Boolean ativo;
-
-    private String token;
 }

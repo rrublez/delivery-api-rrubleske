@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "delivery-api-bruno-gets",
     "name": "Delivery API - Gets (Bruno)",
-    "description": "Collection com consultas (GET) - Seguro para explorar dados sem alterar. Use Authorization: Bearer {{jwtToken}} nos endpoints protegidos.",
+    "description": "Collection com consultas (GET) - Seguro para explorar dados sem alterar. O login retorna um LoginResponse (token, tokenType, expiresAt, user); use Authorization: Bearer {{jwtToken}} nos endpoints protegidos.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -15,9 +15,9 @@
   ],
   "item": [
     {
-      "name": "HEALTH",
+      "name": "ACTUATOR",
       "item": [
-        {"name": "Health Check", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/health", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["health"]}}}
+        {"name": "Actuator Health Check", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/actuator/health", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["actuator", "health"]}}}
       ]
     },
     {
@@ -60,6 +60,23 @@
               "host": ["localhost"],
               "port": "8080",
               "path": ["api", "auth", "login"]
+            }
+          }
+        }
+        ,
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{jwtToken}}"}
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "me"]
             }
           }
         }

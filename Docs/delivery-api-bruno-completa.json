@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "delivery-api-bruno-completa",
     "name": "Delivery API - Completa (Bruno)",
-     "description": "Collection completa com testes de cadastro e consulta para o Delivery API. Utilize Authorization: Bearer {{jwtToken}} nas chamadas protegidas.",
+    "description": "Collection completa com testes de cadastro e consulta para o Delivery API. O login retorna um LoginResponse (token, tokenType, expiresAt, user); utilize Authorization: Bearer {{jwtToken}} nas chamadas protegidas.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
     "variable": [
@@ -18,18 +18,19 @@
       "name": "0 - Setup e Validação",
       "item": [
         {
-          "name": "0.1 - Health Check",
+          "name": "0.1 - Actuator Health Check",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/health",
+              "raw": "http://localhost:8080/actuator/health",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "actuator",
                 "health"
               ]
             }
@@ -94,6 +95,32 @@
                 "api",
                 "auth",
                 "login"
+              ]
+            }
+          }
+        }
+        ,
+        {
+          "name": "0.4 - Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "me"
               ]
             }
           }

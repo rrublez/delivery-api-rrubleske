@@ -8,9 +8,10 @@
 
 ## 🔐 Autenticação e Segurança
 
-- `POST /api/auth/login` e `POST /api/auth/register` são públicos para gerar credenciais com `role` definidos.
+- `POST /api/auth/register` e `POST /api/auth/login` são públicos; todos os outros endpoints (incluindo `GET /api/auth/me`) exigem `Authorization: Bearer <token>` com o valor retornado no login.
+- O `LoginResponse` inclui `token`, `tokenType`, `expiresAt` e um objeto `user` com os dados públicos do usuário autenticado.
 - `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` continuam liberados para leitura pública.
-- Todos os demais endpoints requerem `Authorization: Bearer <token>` e um `role` compatível (por exemplo, `ADMIN` ou `RESTAURANTE`).
+- Todos os demais endpoints requerem um `role` compatível (por exemplo, `ADMIN` ou `RESTAURANTE`).
 - As senhas devem ser persistidas com `BCrypt` e apenas `ativo=true` permite autenticação.
 
 ```bash

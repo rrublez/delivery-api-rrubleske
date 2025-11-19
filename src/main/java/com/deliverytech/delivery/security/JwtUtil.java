@@ -94,4 +94,8 @@ public class JwtUtil {
         }
         return claims;
     }
+
+    public long getExpirationMillis() {
+        return expirationMillis;
+    }
 }

@@ -6,10 +6,10 @@
 
 ---
 
--## 🔐 Autenticação e Segurança
+## 🔐 Autenticação e Segurança
 
-- Apenas `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` ficam fora da exigência de credenciais.
-- Todos os demais endpoints listados aqui exigem `Authorization: Bearer <token>` (use o token retornado por `POST /api/auth/login` e mantenha o cabeçalho com o `role` adequado como `CLIENTE`, `RESTAURANTE`, `ADMIN` ou `ENTREGADOR`).
+- Apenas `POST /api/auth/register` e `POST /api/auth/login` são públicos; todos os outros endpoints (inclusive `GET /api/auth/me`) exigem o cabeçalho `Authorization: Bearer <token>` com o valor retornado no login.
+- O `LoginResponse` contém o token, o tipo (`Bearer`), a data de expiração (`expiresAt`) e um objeto `user` com os dados públicos do usuário.
 - Caso o usuário esteja inativo (`ativo=false`), as chamadas são bloqueadas mesmo com credenciais válidas.
 - Senhas devem ser persistidas com `BCrypt` e nunca trafegam em texto puro na base de dados.
 
