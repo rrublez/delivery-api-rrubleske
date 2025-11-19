@@ -9,4 +9,6 @@ import com.deliverytech.delivery.entity.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
+    
+    void deleteByEmail(String email);
 }

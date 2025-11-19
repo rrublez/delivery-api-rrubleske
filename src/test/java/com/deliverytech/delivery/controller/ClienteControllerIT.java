@@ -48,7 +48,7 @@ class ClienteControllerIT {
     validRequest = new ClienteRequest();
     validRequest.setNome("João Silva");
     validRequest.setEmail("joao@email.com");
-    validRequest.setCpf("12345678900");
+    validRequest.setCpf("12345678909");
     validRequest.setTelefone("11999999999");
     validRequest.setAtivo(true);
   }
@@ -110,7 +110,7 @@ class ClienteControllerIT {
       ClienteRequest duplicateRequest = new ClienteRequest();
       duplicateRequest.setNome("Outro Cliente");
       duplicateRequest.setEmail("joao@email.com"); // mesmo email
-      duplicateRequest.setCpf("98765432100");
+      duplicateRequest.setCpf("11144477735");
       duplicateRequest.setTelefone("11888888888");
       duplicateRequest.setAtivo(true);
 
