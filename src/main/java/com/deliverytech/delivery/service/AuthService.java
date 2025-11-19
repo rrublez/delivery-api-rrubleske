@@ -1,0 +1,80 @@
+package com.deliverytech.delivery.service;
+
+import com.deliverytech.delivery.dto.auth.request.LoginRequest;
+import com.deliverytech.delivery.dto.auth.request.RegisterRequest;
+import com.deliverytech.delivery.dto.auth.response.AuthResponse;
+import com.deliverytech.delivery.entity.Role;
+import com.deliverytech.delivery.entity.Usuario;
+import com.deliverytech.delivery.repository.UsuarioRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
+
+@Service
+public class AuthService {
+
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public AuthResponse register(@Valid RegisterRequest request) {
+        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
+        }
+
+        Role role = Optional.ofNullable(request.getRole()).orElse(Role.CLIENTE);
+
+        if (role == Role.RESTAURANTE && request.getRestauranteId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "restauranteId é obrigatório para role RESTAURANTE");
+        }
+
+        if (role != Role.RESTAURANTE && request.getRestauranteId() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "restauranteId só pode ser definido para role RESTAURANTE");
+        }
+
+        Usuario usuario = Usuario.builder()
+                .nome(request.getNome())
+                .email(request.getEmail())
+                .senha(passwordEncoder.encode(request.getSenha()))
+                .role(role)
+                .restauranteId(request.getRestauranteId())
+                .ativo(Optional.ofNullable(request.getAtivo()).orElse(true))
+                .build();
+
+        Usuario saved = usuarioRepository.save(usuario);
+        return toResponse(saved);
+    }
+
+    public AuthResponse login(@Valid LoginRequest request) {
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas"));
+
+        if (Boolean.FALSE.equals(usuario.getAtivo())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Conta inativa");
+        }
+
+        if (!passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
+        }
+
+        return toResponse(usuario);
+    }
+
+    private AuthResponse toResponse(Usuario usuario) {
+        return AuthResponse.builder()
+                .id(usuario.getId())
+                .nome(usuario.getNome())
+                .email(usuario.getEmail())
+                .role(usuario.getRole())
+                .ativo(usuario.getAtivo())
+                .build();
+    }
+}

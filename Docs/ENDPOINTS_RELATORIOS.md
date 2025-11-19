@@ -8,6 +8,17 @@ O `RelatorioController` consolida todos os endpoints de relatório em um único 
 /api/relatorios
 ```
 
+## 🔐 Autenticação e Segurança
+
+- Apenas `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` podem ser acessados sem credenciais.
+- Todos os endpoints de relatório demandam `Authorization: Basic <base64(email:senha)>` com `role` apropriado (`ADMIN`, `RESTAURANTE` ou `CLIENTE`).
+- Usuários inativos ou com `role` incorreto receberão `401 Unauthorized` mesmo com headers válidos.
+
+```bash
+curl -X GET "http://localhost:8080/api/relatorios/vendas-por-restaurante" \
+  -H "Authorization: Basic $(echo -n 'admin@delivery.com:Senha123!' | base64)"
+```
+
 ## Endpoints
 
 ### 1. Vendas por Restaurante

@@ -6,6 +6,22 @@
 
 ---
 
+## 🔐 Autenticação e Segurança
+
+- Apenas `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` ficam fora da exigência de credenciais.
+- Todos os demais endpoints listados aqui exigem `Authorization: Basic <base64(email:senha)>` com a conta correta (`CLIENTE`, `RESTAURANTE`, `ADMIN`, `ENTREGADOR`).
+- Caso o usuário esteja inativo (`ativo=false`), as chamadas são bloqueadas mesmo com credenciais válidas.
+- Senhas devem ser persistidas com `BCrypt` e nunca trafegam em texto puro na base de dados.
+
+```bash
+curl -X POST "http://localhost:8080/api/pedidos" \
+  -H "Authorization: Basic $(echo -n 'cliente@delivery.com:Senha123!' | base64)" \
+  -H "Content-Type: application/json" \
+  -d '{"numeroPedido":"PED-2025-002","status":"PENDENTE","clienteId":1,"restauranteId":1,"itens":[{"produtoId":1,"quantidade":1,"precoUnitario":45.00}]}'
+```
+
+---
+
 ## 📊 Resumo dos Endpoints
 
 | Método | Endpoint | Descrição | Status |

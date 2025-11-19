@@ -19,6 +19,7 @@ Sistema de delivery desenvolvido com **Spring Boot 3.4.11** e **Java 21 LTS**, u
 | **Spring Boot** | 3.4.11 | Framework web e dependência |
 | **Spring Data JPA** | - | Persistência e acesso a dados com ORM |
 | **Spring Web** | - | REST API e tratamento HTTP |
+| **Spring Security** | 3.4.11 | Segurança baseada em filtros, BCrypt e `UserDetails` para autenticação |
 | **H2 Database** | - | Banco de dados em memória para desenvolvimento |
 | **Maven** | 3.6+ | Gerenciador de dependências e build |
 | **Logback** | - | Sistema de logging com rotação automática |
@@ -72,6 +73,8 @@ graph TB
     style Database fill:#311B92,stroke:#512DA8,stroke-width:2px,color:#FFF
 ```
 
+  Por trás da camada de controladores existe `SecurityConfig`, que protege a maior parte da API com Spring Security enquanto libera os endpoints públicos (`/api/auth/*`, `/api/restaurantes`, `/api/produtos`, `/actuator/health`). O `AuthController` e `AuthService` estão responsáveis por registrar usuários (`Usuario`) com papéis (`Role`) e validar logins usando `BCryptPasswordEncoder`, alimentando o `UserDetailsService` customizado que faz o match contra o repositório antes de liberar qualquer outro controller.
+
 ### Fluxo de Requisição HTTP
 
 ```mermaid
@@ -110,6 +113,48 @@ sequenceDiagram
     Controller-->>Client: HTTP Response (JSON)
     deactivate Controller
 ```
+
+## 🔐 Autenticação e Segurança
+
+A aplicação agora exige autenticação para a maior parte dos endpoints. O `POST /api/auth/register` e o `POST /api/auth/login` permanecem públicos para cadastrar novos usuários e obter credenciais (por enquanto em plano de expansão). Outros caminhos como `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` também continuam liberados para consulta.
+
+Para os demais endpoints, envie um cabeçalho `Authorization: Basic <base64(email:senha)>` após efetuar o registro ou o login. Use credenciais com o campo `role` adequado ao recurso (por exemplo, `ADMIN` para endpoints administrativos ou `RESTAURANTE` para vincular `restauranteId`).
+
+### 1. Registrar Usuário
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Administrador",
+  "email": "admin@delivery.com",
+  "senha": "Senha123!",
+  "role": "ADMIN",
+  "ativo": true
+}
+```
+
+### 2. Autenticar (login)
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@delivery.com",
+  "senha": "Senha123!"
+}
+```
+
+Após receber a resposta do login, reutilize o `Authorization: Basic <base64(email:senha)>` em todas as chamadas protegidas.
+
+```bash
+curl -X GET "http://localhost:8080/api/pedidos" \
+  -H "Authorization: Basic $(echo -n 'usuario@email.com:Senha123!' | base64)"
+```
+
+Em breve implementaremos fluxos com tokens mais sofisticados, mas o básico de `BCrypt` e `UserDetails` já está em vigor.
 
 ---
 

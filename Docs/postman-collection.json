@@ -5,6 +5,46 @@
   "version": "1.1",
   "folders": [
     {
+      "name": "Autenticação",
+      "requests": [
+        {
+          "name": "Registrar Usuário",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/auth/register",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Administrador",
+            "email": "admin@delivery.com",
+            "senha": "Senha123!",
+            "role": "ADMIN",
+            "ativo": true
+          },
+          "tests": [
+            "Status code is 201",
+            "Response contains 'id' field"
+          ]
+        },
+        {
+          "name": "Login",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/auth/login",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "email": "admin@delivery.com",
+            "senha": "Senha123!"
+          },
+          "tests": [
+            "Status code is 200",
+            "Response contains user data"
+          ]
+        }
+      ]
+    },
+    {
       "name": "Clientes",
       "requests": [
         {

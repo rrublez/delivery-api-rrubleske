@@ -1,0 +1,106 @@
+{
+  "info": {
+    "_postman_id": "delivery-api-bruno-gets",
+    "name": "Delivery API - Gets (Bruno)",
+    "description": "Collection com consultas (GET) - Seguro para explorar dados sem alterar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "HEALTH",
+      "item": [
+        {"name": "Health Check", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/health", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["health"]}}}
+      ]
+    },
+    {
+      "name": "AUTENTICAÇÃO",
+      "item": [
+        {
+          "name": "Registrar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Administrador\", \"email\": \"admin@delivery.com\", \"senha\": \"Senha123!\", \"role\": \"ADMIN\", \"ativo\": true}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"admin@delivery.com\", \"senha\": \"Senha123!\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CLIENTES",
+      "item": [
+        {"name": "GET Todos os Clientes", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/clientes", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "clientes"]}}},
+        {"name": "GET Cliente por ID (1)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/clientes/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "clientes", "1"]}}},
+        {"name": "GET Cliente por Email", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/clientes/email/joao@email.com", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "clientes", "email", "joao@email.com"]}}},
+        {"name": "GET Clientes Ativos", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/clientes/ativo", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "clientes", "ativo"]}}}
+      ]
+    },
+    {
+      "name": "RESTAURANTES",
+      "item": [
+        {"name": "GET Todos os Restaurantes", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/restaurantes", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "restaurantes"]}}},
+        {"name": "GET Restaurante por ID (1)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/restaurantes/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "restaurantes", "1"]}}},
+        {"name": "GET Restaurantes Ativos", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/restaurantes/ativo", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "restaurantes", "ativo"]}}},
+        {"name": "GET Restaurantes por Ramo (Pizzaria)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/restaurantes/ramo/Pizzaria", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "restaurantes", "ramo", "Pizzaria"]}}}
+      ]
+    },
+    {
+      "name": "PRODUTOS",
+      "item": [
+        {"name": "GET Todos os Produtos", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos"]}}},
+        {"name": "GET Produto por ID (1)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos", "1"]}}},
+        {"name": "GET Produtos Disponíveis", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos/disponivel", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos", "disponivel"]}}},
+        {"name": "GET Produtos por Categoria (Pizzas)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos/categoria/Pizzas", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos", "categoria", "Pizzas"]}}}
+      ]
+    },
+    {
+      "name": "PEDIDOS",
+      "item": [
+        {"name": "GET Todos os Pedidos", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos"]}}},
+        {"name": "GET Pedido por ID (1)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos", "1"]}}},
+        {"name": "GET Pedidos por Status (ENTREGUE)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos/status/ENTREGUE", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos", "status", "ENTREGUE"]}}},
+        {"name": "GET Pedidos por Cliente (1)", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos/cliente/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos", "cliente", "1"]}}}
+      ]
+    },
+    {
+      "name": "RELATÓRIOS",
+      "item": [
+        {"name": "GET Vendas por Restaurante", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos/relatorio/vendas-por-restaurante", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos", "relatorio", "vendas-por-restaurante"]}}},
+        {"name": "GET Pedidos Valor > 50", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/pedidos/relatorio/valor-acima?valor=50", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "pedidos", "relatorio", "valor-acima"], "query": [{"key": "valor", "value": "50"}]}}},
+        {"name": "GET Produtos Mais Vendidos", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos/relatorio/mais-vendidos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos", "relatorio", "mais-vendidos"]}}},
+        {"name": "GET Faturamento por Categoria", "request": {"method": "GET", "header": [], "url": {"raw": "http://localhost:8080/api/produtos/relatorio/faturamento-por-categoria", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "produtos", "relatorio", "faturamento-por-categoria"]}}}
+      ]
+    }
+  ]
+}
