@@ -20,13 +20,15 @@ import com.deliverytech.delivery.dto.shared.response.PedidoProdutoResponse;
 import com.deliverytech.delivery.dto.shared.response.VendasPorRestauranteResponse;
 import com.deliverytech.delivery.entity.Pedido;
 import com.deliverytech.delivery.entity.PedidoProduto;
+import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.repository.ClienteRepository;
 import com.deliverytech.delivery.repository.PedidoRepository;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
+import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.PedidoService;
 
-@Service
+@Service("pedidoService")
 @Transactional
 public class PedidoServiceImpl implements PedidoService {
 
@@ -327,6 +329,37 @@ public class PedidoServiceImpl implements PedidoService {
     response.setItens(new ArrayList<>(itens));
 
     return response;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean canAccess(Long pedidoId) {
+    if (pedidoId == null) {
+      return false;
+    }
+
+    if (SecurityUtils.hasRole(Role.ADMIN.name())) {
+      return true;
+    }
+
+    return pedidoRepository.findById(pedidoId)
+        .map(pedido -> SecurityUtils.getCurrentUser()
+            .map(usuario -> {
+              if (usuario.getRole() == null) {
+                return false;
+              }
+              return switch (usuario.getRole()) {
+                case CLIENTE -> pedido.getCliente() != null
+                    && usuario.getEmail() != null
+                    && usuario.getEmail().equalsIgnoreCase(pedido.getCliente().getEmail());
+                case RESTAURANTE -> pedido.getRestaurante() != null
+                    && usuario.getRestauranteId() != null
+                    && usuario.getRestauranteId().equals(pedido.getRestaurante().getId());
+                default -> false;
+              };
+            })
+            .orElse(false))
+        .orElse(false);
   }
 
 }

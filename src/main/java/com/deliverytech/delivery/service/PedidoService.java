@@ -46,4 +46,6 @@ public interface PedidoService {
   List<PedidoRelatorioResponse> obterRelatorioByPeriodoAndStatus(LocalDateTime dataInicial,
       LocalDateTime dataFinal, String status);
 
+  boolean canAccess(Long pedidoId);
+
 }

@@ -7,13 +7,14 @@ import com.deliverytech.delivery.dto.produto.response.ProdutoMaisVendidoResponse
 import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
 import com.deliverytech.delivery.entity.Produto;
 import com.deliverytech.delivery.repository.ProdutoRepository;
+import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.ProdutoService;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service("produtoService")
 @Transactional
 public class ProdutoServiceImpl implements ProdutoService {
 
@@ -142,6 +143,25 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.getDisponivel(),
         produto.getCategoria()
     );
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean isOwner(Long produtoId) {
+    if (produtoId == null) {
+      return false;
+    }
+    Long restauranteId = SecurityUtils.getCurrentUser()
+        .map(usuario -> usuario.getRestauranteId())
+        .orElse(null);
+    if (restauranteId == null) {
+      return false;
+    }
+    return produtoRepository.findById(produtoId)
+        .map(produto -> produto.getRestaurantes()
+            .stream()
+            .anyMatch(restaurante -> restauranteId.equals(restaurante.getId())))
+        .orElse(false);
   }
 
 }
