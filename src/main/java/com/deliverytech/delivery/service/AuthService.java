@@ -6,6 +6,7 @@ import com.deliverytech.delivery.dto.auth.response.AuthResponse;
 import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.entity.Usuario;
 import com.deliverytech.delivery.repository.UsuarioRepository;
+import com.deliverytech.delivery.security.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +20,14 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UsuarioRepository usuarioRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public AuthResponse register(@Valid RegisterRequest request) {
@@ -65,16 +70,23 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
 
-        return toResponse(usuario);
+        String token = jwtUtil.generateToken(usuario);
+        return toResponse(usuario, token);
     }
 
     private AuthResponse toResponse(Usuario usuario) {
+        return toResponse(usuario, null);
+    }
+
+    private AuthResponse toResponse(Usuario usuario, String token) {
         return AuthResponse.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .role(usuario.getRole())
+                .restauranteId(usuario.getRestauranteId())
                 .ativo(usuario.getAtivo())
+                .token(token)
                 .build();
     }
 }

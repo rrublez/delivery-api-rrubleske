@@ -118,7 +118,7 @@ sequenceDiagram
 
 A aplicação agora exige autenticação para a maior parte dos endpoints. O `POST /api/auth/register` e o `POST /api/auth/login` permanecem públicos para cadastrar novos usuários e obter credenciais (por enquanto em plano de expansão). Outros caminhos como `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` também continuam liberados para consulta.
 
-Para os demais endpoints, envie um cabeçalho `Authorization: Basic <base64(email:senha)>` após efetuar o registro ou o login. Use credenciais com o campo `role` adequado ao recurso (por exemplo, `ADMIN` para endpoints administrativos ou `RESTAURANTE` para vincular `restauranteId`).
+Para os demais endpoints, envie um cabeçalho `Authorization: Bearer <token>` utilizando o valor do campo `token` retornado pelo `POST /api/auth/login`. O token é válido por 24 horas e já incorpora claims como `userId`, `role` e `restauranteId` para auxiliar o controle de acesso.
 
 ### 1. Registrar Usuário
 
@@ -145,13 +145,27 @@ Content-Type: application/json
   "email": "admin@delivery.com",
   "senha": "Senha123!"
 }
+
+**Resposta esperada (Bearer token incluído):**
+
+```json
+{
+  "id": 1,
+  "nome": "Administrador",
+  "email": "admin@delivery.com",
+  "role": "ADMIN",
+  "ativo": true,
+  "restauranteId": null,
+  "token": "eyJhbGciOiJIUzI1NiIsIn..."
+}
+```
 ```
 
-Após receber a resposta do login, reutilize o `Authorization: Basic <base64(email:senha)>` em todas as chamadas protegidas.
+Após receber a resposta do login, reutilize o token retornado para compor o `Authorization: Bearer <token>` em todas as chamadas protegidas.
 
 ```bash
 curl -X GET "http://localhost:8080/api/pedidos" \
-  -H "Authorization: Basic $(echo -n 'usuario@email.com:Senha123!' | base64)"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 Em breve implementaremos fluxos com tokens mais sofisticados, mas o básico de `BCrypt` e `UserDetails` já está em vigor.

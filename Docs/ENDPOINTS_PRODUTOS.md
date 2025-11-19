@@ -10,12 +10,12 @@
 
 - `POST /api/auth/login` e `POST /api/auth/register` são públicos para gerar credenciais com `role` definidos.
 - `GET /api/restaurantes`, `GET /api/produtos` e `GET /actuator/health` continuam liberados para leitura pública.
-- Todos os demais endpoints requerem `Authorization: Basic <base64(email:senha)>` e um `role` compatível (por exemplo, `ADMIN` ou `RESTAURANTE`).
+- Todos os demais endpoints requerem `Authorization: Bearer <token>` e um `role` compatível (por exemplo, `ADMIN` ou `RESTAURANTE`).
 - As senhas devem ser persistidas com `BCrypt` e apenas `ativo=true` permite autenticação.
 
 ```bash
 curl -X GET "http://localhost:8080/api/produtos" \
-  -H "Authorization: Basic $(echo -n 'usuario@delivery.com:Senha123!' | base64)"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---

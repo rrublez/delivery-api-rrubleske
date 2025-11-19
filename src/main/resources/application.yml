@@ -1,0 +1,4 @@
+security:
+  jwt:
+    secret: qOV+YFv8+8Pm9PrK0oJ7nJjF7CJ7bFaA0PjffQk0b2E=
+    expiration: 86400000

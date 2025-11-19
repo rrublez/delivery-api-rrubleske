@@ -20,6 +20,7 @@ import com.deliverytech.delivery.dto.auth.response.AuthResponse;
 import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.entity.Usuario;
 import com.deliverytech.delivery.repository.UsuarioRepository;
+import com.deliverytech.delivery.security.JwtUtil;
 
 @SuppressWarnings({"nullness", "null"})
 class AuthServiceTest {
@@ -29,6 +30,9 @@ class AuthServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private AuthService authService;
@@ -83,6 +87,7 @@ class AuthServiceTest {
         Usuario usuario = Usuario.builder().id(2L).email(request.getEmail()).senha("hashed").nome("User").role(Role.CLIENTE).ativo(true).build();
         doReturn(Optional.of(usuario)).when(usuarioRepository).findByEmail(request.getEmail());
         doReturn(true).when(passwordEncoder).matches(request.getSenha(), usuario.getSenha());
+        doReturn("jwt").when(jwtUtil).generateToken(usuario);
 
         AuthResponse response = authService.login(request);
 

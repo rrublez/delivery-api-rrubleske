@@ -1,8 +1,17 @@
 {
   "client": "Thunder Client",
   "collectionName": "Delivery API - Complete Test Collection",
+  "description": "Use o token JWT retornado pelo endpoint de login e mantenha o cabeçalho `Authorization: Bearer {{jwtToken}}` nas chamadas protegidas.",
   "dateExport": "2024-01-15",
   "version": "1.1",
+  "variable": [
+    {
+      "key": "jwtToken",
+      "value": "<cole o token JWT aqui>",
+      "type": "string",
+      "description": "JWT que deve ser enviado em `Authorization: Bearer {{jwtToken}}` para os endpoints protegidos"
+    }
+  ],
   "folders": [
     {
       "name": "Autenticação",

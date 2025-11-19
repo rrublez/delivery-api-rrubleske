@@ -24,13 +24,13 @@
 ## 🔐 Autenticação e Segurança
 
 - `POST /api/auth/register` e `POST /api/auth/login` são públicos para criar credenciais e validar dados.
-- Para os demais endpoints, use `Authorization: Basic <base64(email:senha)>` com as credenciais retornadas após o login (cabeçalho `Authorization` deve acompanhar cada requisição protegida).
+- Para os demais endpoints, use `Authorization: Bearer <token>` com as credenciais retornadas após o login (mantenha o `role` correto e reutilize o token até expirar em 24h).
 - Usuários com `role=RESTAURANTE` podem informar o campo `restauranteId`; outras roles devem omitir esse campo.
 - Senhas são armazenadas com `BCrypt` e apenas contas com `ativo=true` conseguem acessar os recursos protegidos.
 
 ```bash
 curl -X GET "http://localhost:8080/api/restaurantes" \
-  -H "Authorization: Basic $(echo -n 'restaurante@delivery.com:Senha123!' | base64)"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 

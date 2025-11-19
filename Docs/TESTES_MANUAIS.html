@@ -351,10 +351,10 @@
 
                     <div class="section">
                         <h2>🔐 Autenticação e Segurança</h2>
-                        <p>Registre um usuário via <code>POST /api/auth/register</code> (role Cliente, Restaurante, Admin ou Entregador) e autentique-se com <code>POST /api/auth/login</code> para receber credenciais válidas. Os endpoints de leitura pública como <code>/api/restaurantes</code>, <code>/api/produtos</code> e <code>/actuator/health</code> continuam disponíveis sem login, mas todo o resto exige um cabeçalho <code>Authorization: Basic &lt;base64(email:senha)&gt;</code>.</p>
+                        <p>Registre um usuário via <code>POST /api/auth/register</code> (role Cliente, Restaurante, Admin ou Entregador) e autentique-se com <code>POST /api/auth/login</code> para receber o token JWT. Os endpoints de leitura pública como <code>/api/restaurantes</code>, <code>/api/produtos</code> e <code>/actuator/health</code> continuam disponíveis sem login, mas todo o resto exige um cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>.</p>
                         <div class="code-block">
                             <pre>curl -X GET "http://localhost:8080/api/pedidos" \
-          -H "Authorization: Basic $(echo -n 'cliente@delivery.com:Senha123!' | base64)"</pre>
+          -H "Authorization: Bearer $TOKEN"</pre>
                         </div>
                         <p style="margin-top: 15px; color: #444;">Não esqueça de usar senhas criptografadas com BCrypt e marcar o usuário como <strong>ativo</strong> no cadastro.</p>
                     </div>

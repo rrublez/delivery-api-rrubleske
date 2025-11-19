@@ -22,5 +22,9 @@ public class AuthResponse {
 
     private Role role;
 
+    private Long restauranteId;
+
     private Boolean ativo;
+
+    private String token;
 }

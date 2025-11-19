@@ -2,9 +2,17 @@
   "info": {
     "_postman_id": "delivery-api-bruno-completa",
     "name": "Delivery API - Completa (Bruno)",
-    "description": "Collection completa para testes da Delivery API com CPFs e CNPJs válidos. Inclui setup, validação, CRUD, relatórios e mais.",
+     "description": "Collection completa com testes de cadastro e consulta para o Delivery API. Utilize Authorization: Bearer {{jwtToken}} nas chamadas protegidas.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+    "variable": [
+      {
+        "key": "jwtToken",
+        "value": "<token JWT aqui>",
+        "description": "Use em Authorization: Bearer {{jwtToken}}",
+        "type": "string"
+      }
+    ],
   "item": [
     {
       "name": "0 - Setup e Validação",
