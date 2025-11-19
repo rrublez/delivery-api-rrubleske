@@ -1,3 +1,9 @@
+spring:
+  security:
+    user:
+      name: admin
+      password: admin123
+
 security:
   jwt:
     secret: qOV+YFv8+8Pm9PrK0oJ7nJjF7CJ7bFaA0PjffQk0b2E=
@@ -18,3 +24,8 @@ info:
     developer: Rafael Rubleske
     java: JDK 21
     framework: Spring Boot 3.4.11
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.deliverytech: DEBUG
