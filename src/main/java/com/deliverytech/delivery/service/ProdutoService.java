@@ -38,4 +38,6 @@ public interface ProdutoService {
 
   List<FaturamentoPorCategoriaResponse> obterFaturamentoPorCategoria();
 
+  boolean isOwner(Long produtoId);
+
 }

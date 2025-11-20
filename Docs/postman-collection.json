@@ -1,9 +1,72 @@
 {
   "client": "Thunder Client",
   "collectionName": "Delivery API - Complete Test Collection",
+  "description": "O login retorna um LoginResponse (token, tokenType, expiresAt, user); use o token JWT retornado e mantenha o cabeçalho `Authorization: Bearer {{jwtToken}}` nas chamadas protegidas.",
   "dateExport": "2024-01-15",
   "version": "1.1",
+  "variable": [
+    {
+      "key": "jwtToken",
+      "value": "<cole o token JWT aqui>",
+      "type": "string",
+      "description": "JWT que deve ser enviado em `Authorization: Bearer {{jwtToken}}` para os endpoints protegidos"
+    }
+  ],
   "folders": [
+    {
+      "name": "Autenticação",
+      "requests": [
+        {
+          "name": "Registrar Usuário",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/auth/register",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Administrador",
+            "email": "admin@delivery.com",
+            "senha": "Senha123!",
+            "role": "ADMIN",
+            "ativo": true
+          },
+          "tests": [
+            "Status code is 201",
+            "Response contains 'id' field"
+          ]
+        },
+        {
+          "name": "Login",
+          "method": "POST",
+          "url": "{{baseUrl}}/api/auth/login",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "email": "admin@delivery.com",
+            "senha": "Senha123!"
+          },
+          "tests": [
+            "Status code is 200",
+            "Response contains 'token'",
+            "Response contains 'user'"
+          ]
+        }
+        ,
+        {
+          "name": "Me",
+          "method": "GET",
+          "url": "{{baseUrl}}/api/auth/me",
+          "headers": {
+            "Authorization": "Bearer {{jwtToken}}"
+          },
+          "tests": [
+            "Status code is 200",
+            "Response contains 'email'"
+          ]
+        }
+      ]
+    },
     {
       "name": "Clientes",
       "requests": [

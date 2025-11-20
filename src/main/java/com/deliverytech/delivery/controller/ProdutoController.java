@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -53,6 +54,7 @@ public class ProdutoController {
       @ApiResponse(responseCode = "201", description = "Produto criado com sucesso"),
       @ApiResponse(responseCode = "400", description = "Dados inválidos")
   })
+  @PreAuthorize("hasRole('RESTAURANTE') or hasRole('ADMIN')")
   public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request) {
     var response = produtoService.criarProduto(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -85,6 +87,7 @@ public class ProdutoController {
       @ApiResponse(responseCode = "400", description = "Dados inválidos"),
       @ApiResponse(responseCode = "404", description = "Produto não encontrado")
   })
+  @PreAuthorize("hasRole('ADMIN') or @produtoService.isOwner(#id)")
   public ResponseEntity<ProdutoResponse> atualizar(
       @Parameter(description = "ID do produto") @PathVariable Long id,
       @Valid @RequestBody ProdutoRequest request) {
@@ -102,6 +105,7 @@ public class ProdutoController {
       @ApiResponse(responseCode = "204", description = "Produto deletado com sucesso"),
       @ApiResponse(responseCode = "404", description = "Produto não encontrado")
   })
+  @PreAuthorize("hasRole('ADMIN') or @produtoService.isOwner(#id)")
   public ResponseEntity<Void> deletar(@Parameter(description = "ID do produto") @PathVariable Long id) {
     produtoService.deletarProduto(id);
     return ResponseEntity.noContent().build();

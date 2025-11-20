@@ -1,0 +1,31 @@
+spring:
+  security:
+    user:
+      name: admin
+      password: admin123
+
+security:
+  jwt:
+    secret: qOV+YFv8+8Pm9PrK0oJ7nJjF7CJ7bFaA0PjffQk0b2E=
+    expiration: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+info:
+  app:
+    name: Delivery Tech API
+    version: 1.0.0
+    developer: Rafael Rubleske
+    java: JDK 21
+    framework: Spring Boot 3.4.11
+
+logging:
+  level:
+    org.springframework.security: ERROR
+    com.deliverytech: ERROR

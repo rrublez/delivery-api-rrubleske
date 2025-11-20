@@ -7,13 +7,14 @@ import com.deliverytech.delivery.dto.produto.response.ProdutoMaisVendidoResponse
 import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
 import com.deliverytech.delivery.entity.Produto;
 import com.deliverytech.delivery.repository.ProdutoRepository;
+import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.ProdutoService;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service("produtoService")
 @Transactional
 public class ProdutoServiceImpl implements ProdutoService {
 
@@ -40,14 +41,14 @@ public class ProdutoServiceImpl implements ProdutoService {
   @Transactional(readOnly = true)
   public ProdutoResponse obterPorId(Long id) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     return mapearParaResponse(produto);
   }
 
   @Override
   public ProdutoResponse atualizarProduto(Long id, ProdutoRequest request) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
     produto.setNome(request.getNome());
     produto.setDescricao(request.getDescricao());
@@ -62,14 +63,14 @@ public class ProdutoServiceImpl implements ProdutoService {
   @Override
   public void deletarProduto(Long id) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     produtoRepository.delete(produto);
   }
 
   @Override
   public ProdutoResponse atualizarDisponibilidade(Long id, AtualizarDisponibilidadeProdutoRequest request) {
     var produto = produtoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
     produto.setDisponivel(request.getDisponivel());
     var produtoAtualizado = produtoRepository.save(produto);
@@ -142,6 +143,25 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.getDisponivel(),
         produto.getCategoria()
     );
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean isOwner(Long produtoId) {
+    if (produtoId == null) {
+      return false;
+    }
+    Long restauranteId = SecurityUtils.getCurrentUser()
+        .map(usuario -> usuario.getRestauranteId())
+        .orElse(null);
+    if (restauranteId == null) {
+      return false;
+    }
+    return produtoRepository.findById(produtoId)
+        .map(produto -> produto.getRestaurantes()
+            .stream()
+            .anyMatch(restaurante -> restauranteId.equals(restaurante.getId())))
+        .orElse(false);
   }
 
 }

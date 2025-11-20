@@ -21,6 +21,19 @@
 
 ---
 
+## 🔐 Autenticação e Segurança
+
+- `POST /api/auth/register` e `POST /api/auth/login` são públicos para criar credenciais e validar dados; `GET /api/auth/me` e todos os demais endpoints exigem `Authorization: Bearer <token>` retornado pelo login.
+- O `LoginResponse` inclui o JWT (`token`), o tipo (`Bearer`), o `expiresAt` e o objeto `user` com os dados públicos do usuário autenticado.
+- Usuários com `role=RESTAURANTE` podem informar o campo `restauranteId`; outras roles devem omitir esse campo.
+- Senhas são armazenadas com `BCrypt` e apenas contas com `ativo=true` conseguem acessar os recursos protegidos.
+
+```bash
+curl -X GET "http://localhost:8080/api/restaurantes" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+
 ## 🔍 Detalhamento dos Endpoints
 
 ### 1️⃣ GET /api/restaurantes - Listar com Filtros
@@ -112,21 +125,15 @@ curl -X GET "http://localhost:8080/api/restaurantes?ramo=Pizzaria&ativo=true"
 
 ```bash
 curl -X POST "http://localhost:8080/api/restaurantes" \
-  -H "Content-Type: application/json" \
   -d '{
     "nome": "Pizza Palace",
     "endereco": "Avenida Paulista, 1000",
-    "telefone": "1133334444",
-    "cnpj": "11222333000181",
-    "ramoAtividade": "Pizzaria",
-    "ativo": true,
     "taxaEntrega": 5.00
   }'
 ```
 
 **Response (201 Created):**
 
-```json
 {
   "id": 1,
   "nome": "Pizza Palace",
@@ -141,7 +148,6 @@ curl -X POST "http://localhost:8080/api/restaurantes" \
 
 **Possíveis Erros:**
 - `400 Bad Request` - Validação falhou
-- `409 Conflict` - Nome/CNPJ/Telefone já existe
 
 ---
 

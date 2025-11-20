@@ -20,13 +20,15 @@ import com.deliverytech.delivery.dto.shared.response.PedidoProdutoResponse;
 import com.deliverytech.delivery.dto.shared.response.VendasPorRestauranteResponse;
 import com.deliverytech.delivery.entity.Pedido;
 import com.deliverytech.delivery.entity.PedidoProduto;
+import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.repository.ClienteRepository;
 import com.deliverytech.delivery.repository.PedidoRepository;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
+import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.PedidoService;
 
-@Service
+@Service("pedidoService")
 @Transactional
 public class PedidoServiceImpl implements PedidoService {
 
@@ -49,9 +51,9 @@ public class PedidoServiceImpl implements PedidoService {
   @Override
   public PedidoResponse criarPedido(PedidoRequest request) {
     var cliente = clienteRepository.findById(request.getClienteId())
-        .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+      .orElseThrow(() -> new IllegalArgumentException("Cliente inválido"));
     var restaurante = restauranteRepository.findById(request.getRestauranteId())
-        .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+      .orElseThrow(() -> new IllegalArgumentException("Restaurante inválido"));
 
     var pedido = new Pedido();
     pedido.setNumeroPedido(request.getNumeroPedido());
@@ -64,8 +66,8 @@ public class PedidoServiceImpl implements PedidoService {
     var valorTotal = BigDecimal.ZERO;
 
     for (PedidoProdutoRequest itemRequest : request.getItens()) {
-      var produto = produtoRepository.findById(itemRequest.getProdutoId())
-          .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        var produto = produtoRepository.findById(itemRequest.getProdutoId())
+          .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado"));
 
       var item = new PedidoProduto();
       item.setPedido(pedido);
@@ -161,8 +163,8 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional(readOnly = true)
   public PedidoResponse obterPorId(Long id) {
     return pedidoRepository.findById(id)
-        .map(this::mapearParaResponse)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+      .map(this::mapearParaResponse)
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
   }
 
   @Override
@@ -186,7 +188,7 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional
   public PedidoResponse atualizarStatus(Long id, AtualizarStatusPedidoRequest request) {
     var pedido = pedidoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
     pedido.setStatus(request.getStatus());
     var pedidoAtualizado = pedidoRepository.save(pedido);
     return mapearParaResponse(pedidoAtualizado);
@@ -196,7 +198,7 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional
   public void cancelarPedido(Long id) {
     var pedido = pedidoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Pedido não encontrado"));
     pedido.setStatus("CANCELADO");
     pedidoRepository.save(pedido);
   }
@@ -220,14 +222,14 @@ public class PedidoServiceImpl implements PedidoService {
   @Transactional(readOnly = true)
   public CalcularPedidoResponse calcularTotal(CalcularPedidoRequest request) {
     var restaurante = restauranteRepository.findById(request.getRestauranteId())
-        .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+      .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Restaurante não encontrado"));
 
     var itens = new ArrayList<PedidoProdutoResponse>();
     var subtotal = BigDecimal.ZERO;
 
     for (PedidoProdutoRequest itemRequest : request.getItens()) {
-      var produto = produtoRepository.findById(itemRequest.getProdutoId())
-          .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        var produto = produtoRepository.findById(itemRequest.getProdutoId())
+          .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado"));
 
       var precoUnitario = itemRequest.getPrecoUnitario();
       var quantidade = itemRequest.getQuantidade();
@@ -327,6 +329,37 @@ public class PedidoServiceImpl implements PedidoService {
     response.setItens(new ArrayList<>(itens));
 
     return response;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean canAccess(Long pedidoId) {
+    if (pedidoId == null) {
+      return false;
+    }
+
+    if (SecurityUtils.hasRole(Role.ADMIN.name())) {
+      return true;
+    }
+
+    return pedidoRepository.findById(pedidoId)
+        .map(pedido -> SecurityUtils.getCurrentUser()
+            .map(usuario -> {
+              if (usuario.getRole() == null) {
+                return false;
+              }
+              return switch (usuario.getRole()) {
+                case CLIENTE -> pedido.getCliente() != null
+                    && usuario.getEmail() != null
+                    && usuario.getEmail().equalsIgnoreCase(pedido.getCliente().getEmail());
+                case RESTAURANTE -> pedido.getRestaurante() != null
+                    && usuario.getRestauranteId() != null
+                    && usuario.getRestauranteId().equals(pedido.getRestaurante().getId());
+                default -> false;
+              };
+            })
+            .orElse(false))
+        .orElse(false);
   }
 
 }

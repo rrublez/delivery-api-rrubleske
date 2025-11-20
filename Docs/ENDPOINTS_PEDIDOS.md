@@ -6,6 +6,22 @@
 
 ---
 
+## 🔐 Autenticação e Segurança
+
+- Apenas `POST /api/auth/register` e `POST /api/auth/login` são públicos; todos os outros endpoints (inclusive `GET /api/auth/me`) exigem o cabeçalho `Authorization: Bearer <token>` com o valor retornado no login.
+- O `LoginResponse` contém o token, o tipo (`Bearer`), a data de expiração (`expiresAt`) e um objeto `user` com os dados públicos do usuário.
+- Caso o usuário esteja inativo (`ativo=false`), as chamadas são bloqueadas mesmo com credenciais válidas.
+- Senhas devem ser persistidas com `BCrypt` e nunca trafegam em texto puro na base de dados.
+
+```bash
+curl -X POST "http://localhost:8080/api/pedidos" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"numeroPedido":"PED-2025-002","status":"PENDENTE","clienteId":1,"restauranteId":1,"itens":[{"produtoId":1,"quantidade":1,"precoUnitario":45.00}]}'
+```
+
+---
+
 ## 📊 Resumo dos Endpoints
 
 | Método | Endpoint | Descrição | Status |

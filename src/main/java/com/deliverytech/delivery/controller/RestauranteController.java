@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +49,7 @@ public class RestauranteController {
   @GetMapping
   @Operation(summary = "Listar restaurantes", description = "Retorna lista de restaurantes com filtros opcionais por ramo e status")
   @ApiResponse(responseCode = "200", description = "Restaurantes listados com sucesso")
+  @PreAuthorize("permitAll()")
   public ResponseEntity<List<RestauranteResponse>> listarRestaurantes(
       @Parameter(description = "Ramo de atividade (ex: Pizzaria, Burger, Churrascaria)") @RequestParam(required = false) String ramo,
       @Parameter(description = "Status ativo/inativo") @RequestParam(required = false) Boolean ativo) {
@@ -65,6 +67,7 @@ public class RestauranteController {
       @ApiResponse(responseCode = "201", description = "Restaurante criado com sucesso"),
       @ApiResponse(responseCode = "400", description = "Dados inválidos ou CNPJ já registrado")
   })
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<RestauranteResponse> criarRestaurante(
       @Valid @RequestBody RestauranteRequest request) {
     RestauranteResponse response = restauranteService.criarRestaurante(request);
@@ -99,6 +102,7 @@ public class RestauranteController {
       @ApiResponse(responseCode = "404", description = "Restaurante não encontrado"),
       @ApiResponse(responseCode = "409", description = "Conflito de dados")
   })
+  @PreAuthorize("hasRole('ADMIN') or (hasRole('RESTAURANTE') and @restauranteService.isOwner(#id))")
   public ResponseEntity<RestauranteResponse> atualizarRestaurante(
       @Parameter(description = "ID do restaurante") @PathVariable Long id,
       @Valid @RequestBody RestauranteRequest request) {

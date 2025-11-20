@@ -7,6 +7,7 @@ import com.deliverytech.delivery.dto.restaurante.response.RestaurantePróximoRes
 import com.deliverytech.delivery.dto.restaurante.response.TaxaEntregaResponse;
 import com.deliverytech.delivery.entity.Restaurante;
 import com.deliverytech.delivery.repository.RestauranteRepository;
+import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.RestauranteService;
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-@Service
+@Service("restauranteService")
 @Transactional
 public class RestauranteServiceImpl implements RestauranteService {
 
@@ -23,6 +24,17 @@ public class RestauranteServiceImpl implements RestauranteService {
 
   public RestauranteServiceImpl(RestauranteRepository restauranteRepository) {
     this.restauranteRepository = restauranteRepository;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean isOwner(Long restauranteId) {
+    if (restauranteId == null) {
+      return false;
+    }
+    return SecurityUtils.getCurrentUser()
+        .map(usuario -> restauranteId.equals(usuario.getRestauranteId()))
+        .orElse(false);
   }
 
   @Override

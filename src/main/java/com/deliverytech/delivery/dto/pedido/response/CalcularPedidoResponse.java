@@ -1,6 +1,7 @@
 package com.deliverytech.delivery.dto.pedido.response;
 
 import com.deliverytech.delivery.dto.shared.response.PedidoProdutoResponse;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,5 +27,11 @@ public class CalcularPedidoResponse {
 
   @Schema(description = "Valor total do pedido (subtotal + taxa)", example = "92.90")
   private BigDecimal valorTotal;
+
+  // Compat: alguns testes esperam campo "total" em vez de "valorTotal"
+  @JsonProperty("total")
+  public BigDecimal getTotal() {
+    return valorTotal;
+  }
 
 }

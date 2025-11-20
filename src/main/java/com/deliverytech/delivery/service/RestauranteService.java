@@ -34,4 +34,6 @@ public interface RestauranteService {
 
   List<RestaurantePróximoResponse> listarProximos(String cep, Double raioKm);
 
+  boolean isOwner(Long restauranteId);
+
 }

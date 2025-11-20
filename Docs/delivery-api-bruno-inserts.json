@@ -1,0 +1,828 @@
+{
+  "info": {
+    "_postman_id": "delivery-api-bruno-inserts",
+    "name": "Delivery API - Inserts (Bruno)",
+    "description": "Collection com inserts em massa (10 clientes, 8 restaurantes, 25 produtos, 15 pedidos) com CPFs e CNPJs válidos. O login retorna um LoginResponse (token, tokenType, expiresAt, user) e você deve usar Authorization: Bearer {{jwtToken}} nos endpoints protegidos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "jwtToken",
+      "value": "<token JWT aqui>",
+      "description": "Use em Authorization: Bearer {{jwtToken}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "AUTENTICAÇÃO",
+      "item": [
+        {
+          "name": "Registrar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Administrador\", \"email\": \"admin@delivery.com\", \"senha\": \"Senha123!\", \"role\": \"ADMIN\", \"ativo\": true}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"admin@delivery.com\", \"senha\": \"Senha123!\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+        ,
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{jwtToken}}"}
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CLIENTES",
+      "item": [
+        {
+          "name": "Criar Cliente 01 - João Silva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"João Silva\", \"email\": \"joao.silva@email.com\", \"telefone\": \"11987654321\", \"cpf\": \"16558405415\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 02 - Maria Santos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Maria Santos\", \"email\": \"maria.santos@email.com\", \"telefone\": \"11912345678\", \"cpf\": \"22322654981\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 03 - Pedro Oliveira",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Pedro Oliveira\", \"email\": \"pedro.oliveira@email.com\", \"telefone\": \"11955555555\", \"cpf\": \"71236912616\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 04 - Ana Costa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Ana Costa\", \"email\": \"ana.costa@email.com\", \"telefone\": \"21987654321\", \"cpf\": \"68234998935\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 05 - Lucas Ferreira",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Lucas Ferreira\", \"email\": \"lucas.ferreira@email.com\", \"telefone\": \"31912345678\", \"cpf\": \"02567710574\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 06 - Fernanda Rodrigues",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Fernanda Rodrigues\", \"email\": \"fernanda.rodrigues@email.com\", \"telefone\": \"41987654321\", \"cpf\": \"62121572007\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 07 - Carlos Mendes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Carlos Mendes\", \"email\": \"carlos.mendes@email.com\", \"telefone\": \"51912345678\", \"cpf\": \"19706733540\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 08 - Juliana Alves",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Juliana Alves\", \"email\": \"juliana.alves@email.com\", \"telefone\": \"61987654321\", \"cpf\": \"07256184000\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 09 - Rafael Gomes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Rafael Gomes\", \"email\": \"rafael.gomes@email.com\", \"telefone\": \"71912345678\", \"cpf\": \"01019078421\", \"ativo\": true}"
+            }
+          }
+        },
+        {
+          "name": "Criar Cliente 10 - Camila Neves",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Camila Neves\", \"email\": \"camila.neves@email.com\", \"telefone\": \"81987654321\", \"cpf\": \"71049119797\", \"ativo\": true}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "RESTAURANTES",
+      "item": [
+        {
+          "name": "Criar Restaurante 01 - Pizza Palace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Pizza Palace\", \"endereco\": \"Avenida Paulista, 1000\", \"telefone\": \"1133334444\", \"cnpj\": \"25924043600116\", \"ramoAtividade\": \"Pizzaria\", \"ativo\": true, \"taxaEntrega\": 5.0}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 02 - Sushi House",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Sushi House\", \"endereco\": \"Rua Augusta, 2500\", \"telefone\": \"1144445555\", \"cnpj\": \"71892683831429\", \"ramoAtividade\": \"Japonesa\", \"ativo\": true, \"taxaEntrega\": 8.5}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 03 - Churrascaria do João",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Churrascaria do João\", \"endereco\": \"Rua das Flores, 500\", \"telefone\": \"1155556666\", \"cnpj\": \"35095336672001\", \"ramoAtividade\": \"Churrascaria\", \"ativo\": true, \"taxaEntrega\": 7.5}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 04 - Café da Manhã Plus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Café da Manhã Plus\", \"endereco\": \"Av. Brasil, 800\", \"telefone\": \"2177778888\", \"cnpj\": \"46829035154799\", \"ramoAtividade\": \"Cafeteria\", \"ativo\": true, \"taxaEntrega\": 3.0}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 05 - Thai Garden",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Thai Garden\", \"endereco\": \"Rua 25 de Março, 1200\", \"telefone\": \"3199990000\", \"cnpj\": \"33614455867184\", \"ramoAtividade\": \"Tailandesa\", \"ativo\": true, \"taxaEntrega\": 6.5}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 06 - Steak House Premium",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Steak House Premium\", \"endereco\": \"Av. Getúlio Vargas, 3000\", \"telefone\": \"4188881111\", \"cnpj\": \"30358175907050\", \"ramoAtividade\": \"Churrascaria\", \"ativo\": true, \"taxaEntrega\": 9.0}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 07 - Massas Italianas Luigi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Massas Italianas Luigi\", \"endereco\": \"Rua Independência, 750\", \"telefone\": \"5122223333\", \"cnpj\": \"46401585245422\", \"ramoAtividade\": \"Italiana\", \"ativo\": true, \"taxaEntrega\": 4.5}"
+            }
+          }
+        },
+        {
+          "name": "Criar Restaurante 08 - Burger House",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "restaurantes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Burger House\", \"endereco\": \"Rua das Palmeiras, 450\", \"telefone\": \"6177774444\", \"cnpj\": \"58601971952046\", \"ramoAtividade\": \"Fast Food\", \"ativo\": true, \"taxaEntrega\": 2.5}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PRODUTOS",
+      "item": [
+        {
+          "name": "Criar Produto 01 - Pizza Margherita",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Pizza Margherita\", \"descricao\": \"Pizza clássica com tomate, mozzarela e manjericão\", \"preco\": 45.0, \"disponivel\": true, \"categoria\": \"Pizzas\"}"
+            }
+          }
+        },
+        {
+          "name": "Criar Produto 02 - Pizza Pepperoni",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Pizza Pepperoni\", \"descricao\": \"Pizza com pepperoni e queijo derretido\", \"preco\": 50.0, \"disponivel\": true, \"categoria\": \"Pizzas\"}"
+            }
+          }
+        },
+        {
+          "name": "Criar Produto 03 - Refrigerante 2L",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Refrigerante 2L\", \"descricao\": \"Refrigerante gelado de 2 litros\", \"preco\": 8.0, \"disponivel\": true, \"categoria\": \"Bebidas\"}"
+            }
+          }
+        },
+        {
+          "name": "Criar Produto 04 - Combo Sushi Premium",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Combo Sushi Premium\", \"descricao\": \"Combo com 30 peças de sushi sortido\", \"preco\": 120.0, \"disponivel\": true, \"categoria\": \"Combos\"}"
+            }
+          }
+        },
+        {
+          "name": "Criar Produto 05 - Temaki Salmão",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Temaki Salmão\", \"descricao\": \"Temaki com salmão fresco e maionese japonesa\", \"preco\": 35.0, \"disponivel\": true, \"categoria\": \"Temakis\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PEDIDOS",
+      "item": [
+        {
+          "name": "Criar Pedido 01",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/pedidos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"numeroPedido\": \"PEDIDO-001\", \"status\": \"PENDENTE\", \"clienteId\": 1, \"restauranteId\": 1, \"itens\": [{\"produtoId\": 1, \"quantidade\": 2, \"precoUnitario\": 45.0}]}"
+            }
+          }
+        },
+        {
+          "name": "Criar Pedido 02",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/pedidos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"numeroPedido\": \"PEDIDO-002\", \"status\": \"ENTREGUE\", \"clienteId\": 2, \"restauranteId\": 1, \"itens\": [{\"produtoId\": 2, \"quantidade\": 1, \"precoUnitario\": 50.0}]}"
+            }
+          }
+        },
+        {
+          "name": "Criar Pedido 03",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/pedidos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"numeroPedido\": \"PEDIDO-003\", \"status\": \"ENTREGUE\", \"clienteId\": 3, \"restauranteId\": 2, \"itens\": [{\"produtoId\": 4, \"quantidade\": 1, \"precoUnitario\": 120.0}]}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

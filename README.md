@@ -19,6 +19,7 @@ Sistema de delivery desenvolvido com **Spring Boot 3.4.11** e **Java 21 LTS**, u
 | **Spring Boot** | 3.4.11 | Framework web e dependência |
 | **Spring Data JPA** | - | Persistência e acesso a dados com ORM |
 | **Spring Web** | - | REST API e tratamento HTTP |
+| **Spring Security** | 3.4.11 | Segurança baseada em filtros, BCrypt e `UserDetails` para autenticação |
 | **H2 Database** | - | Banco de dados em memória para desenvolvimento |
 | **Maven** | 3.6+ | Gerenciador de dependências e build |
 | **Logback** | - | Sistema de logging com rotação automática |
@@ -72,6 +73,8 @@ graph TB
     style Database fill:#311B92,stroke:#512DA8,stroke-width:2px,color:#FFF
 ```
 
+  Por trás da camada de controladores existe `SecurityConfig`, que protege a maior parte da API com Spring Security enquanto libera os endpoints públicos (`/api/auth/*`, `/api/restaurantes`, `/api/produtos`, `/actuator/health`, `/actuator/info`). O `AuthController` e `AuthService` estão responsáveis por registrar usuários (`Usuario`) com papéis (`Role`) e validar logins usando `BCryptPasswordEncoder`, alimentando o `UserDetailsService` customizado que faz o match contra o repositório antes de liberar qualquer outro controller.
+
 ### Fluxo de Requisição HTTP
 
 ```mermaid
@@ -111,22 +114,93 @@ sequenceDiagram
     deactivate Controller
 ```
 
+## 🔐 Autenticação e Segurança
+
+A aplicação agora exige autenticação para a maior parte dos endpoints. Os caminhos públicos ficam limitados ao `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/restaurantes`, `GET /api/produtos`, `GET /actuator/health` e `GET /actuator/info`. Todos os outros recursos exigem um cabeçalho `Authorization: Bearer <token>` com o token retornado no login. O token é válido por 24 horas e já incorpora claims como `userId`, `role` e `restauranteId` para auxiliar o controle de acesso.
+
+### 1. Registrar Usuário
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Administrador",
+  "email": "admin@delivery.com",
+  "senha": "Senha123!",
+  "role": "ADMIN",
+  "ativo": true
+}
+```
+
+O retorno desta requisição traz os dados públicos do usuário recém-criado (sem o token).
+
+### 2. Autenticar (login)
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@delivery.com",
+  "senha": "Senha123!"
+}
+
+**Resposta esperada:**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+  "tokenType": "Bearer",
+  "expiresAt": "2025-11-19T08:00:00Z",
+  "user": {
+    "id": 1,
+    "nome": "Administrador",
+    "email": "admin@delivery.com",
+    "role": "ADMIN",
+    "ativo": true,
+    "restauranteId": null
+  }
+}
+```
+
+Este token pode ser reutilizado em qualquer endpoint protegido.
+
+### 3. Dados do usuário autenticado
+
+```http
+GET /api/auth/me
+Authorization: Bearer <token>
+```
+
+Retorna a mesma estrutura de `user` do login e permite verificar o token atual sem precisar efetuar novo login.
+```
+
+Após receber a resposta do login, reutilize o token retornado para compor o `Authorization: Bearer <token>` em todas as chamadas protegidas.
+
+```bash
+curl -X GET "http://localhost:8080/api/pedidos" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Em breve implementaremos fluxos com tokens mais sofisticados, mas o básico de `BCrypt` e `UserDetails` já está em vigor.
+
 ---
 
 ## 🎯 Endpoints Organizados por Controller
 
-### 🏥 Health & Info Controller
-Status e informações da aplicação
+### ⚙️ Spring Boot Actuator
+Health e informações essenciais expostas por `/actuator/health` e `/actuator/info`.
 
 | Método | Endpoint | Descrição | Status |
 |--------|----------|-----------|--------|
-| `GET` | `/health` | Status da aplicação (Java version, service UP/DOWN) | 200 |
-| `GET` | `/info` | Informações da app e desenvolvedor | 200 |
+| `GET` | `/actuator/health` | Monitoramento de saúde | 200 |
+| `GET` | `/actuator/info` | Metadados da aplicação | 200 |
 | `GET` | `/h2-console` | Console do banco H2 | 200 |
 
 **Exemplo cURL:**
 ```bash
-curl -X GET "http://localhost:8080/health"
+curl -X GET "http://localhost:8080/actuator/health"
 ```
 
 ---
@@ -792,15 +866,15 @@ graph TD
 graph TB
     API["🔌 REST API<br/>Spring Boot 3.4.11"]
     
-    API --> H["🏥 Health<br/>Controller"]
+    API --> H["🧭 Spring Boot<br/>Actuator"]
     API --> C["👥 Cliente<br/>Controller"]
     API --> R["🏪 Restaurante<br/>Controller"]
     API --> P["🍕 Produto<br/>Controller"]
     API --> O["📦 Pedido<br/>Controller"]
     API --> REL["📊 Relatório<br/>Controller"]
     
-    H --> H1["GET /health"]
-    H --> H2["GET /info"]
+    H --> H1["GET /actuator/health"]
+    H --> H2["GET /actuator/info"]
     
     C --> C1["POST /api/clientes"]
     C --> C2["GET /api/clientes/email/{email}"]
@@ -863,8 +937,6 @@ src/main/java/com/deliverytech/delivery/
 │   ├── RestauranteController.java ................. REST: Restaurantes
 │   ├── ProdutoController.java ..................... REST: Produtos
 │   ├── PedidoController.java ...................... REST: Pedidos
-│   ├── HealthController.java ...................... Health Check
-│   └── DemoController.java ........................ Java 21 Features
 ├── service/
 │   ├── ClienteService.java ........................ Lógica: Clientes
 │   ├── RestauranteService.java .................... Lógica: Restaurantes
@@ -927,12 +999,12 @@ cd delivery-api-rrubleske
 
 3. **Verifique se está rodando**
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8080/actuator/health
 ```
 
 4. **Acesse os consoles**
 - H2 Console: http://localhost:8080/h2-console (user: sa, senha vazia)
-- Health: http://localhost:8080/health
+- Health: http://localhost:8080/actuator/health
 
 ---
 

@@ -1,9 +1,11 @@
 package com.deliverytech.delivery.controller;
 
 import com.deliverytech.delivery.dto.produto.request.ProdutoRequest;
+import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.entity.Restaurante;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
+import com.deliverytech.delivery.support.TestAuthHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +50,8 @@ class ProdutoControllerIT {
   private ProdutoRequest validRequest;
   private Restaurante restaurante;
   private Long restauranteId;
+  private String adminToken;
+  private String restauranteToken;
 
   @BeforeEach
   void setUp() {
@@ -58,12 +62,17 @@ class ProdutoControllerIT {
     restaurante = new Restaurante();
     restaurante.setNome("Pizzaria Central");
     restaurante.setEndereco("Rua Principal, 100");
-    restaurante.setTelefone("1133333333");
-    restaurante.setCnpj("12345678000190");
+    // Garantir unicidade para evitar colisões em execuções consecutivas
+    String uniqueSuffix = String.valueOf(System.nanoTime());
+    String uniqueTelefone = ("11" + uniqueSuffix).substring(0, Math.min(11 + uniqueSuffix.length(), 11));
+    String uniqueCnpj = (uniqueSuffix + "00000000000000").substring(0, 14);
+    restaurante.setTelefone(uniqueTelefone);
+    restaurante.setCnpj(uniqueCnpj);
     restaurante.setRamoAtividade("Pizzaria");
     restaurante.setAtivo(true);
     restaurante.setTaxaEntrega(BigDecimal.valueOf(5.00));
     restaurante = restauranteRepository.save(restaurante);
+    restauranteId = restaurante.getId();
 
     validRequest = new ProdutoRequest();
     validRequest.setNome("Pizza Margherita");
@@ -71,6 +80,13 @@ class ProdutoControllerIT {
     validRequest.setPreco(BigDecimal.valueOf(35.00));
     validRequest.setCategoria("Pizza");
     validRequest.setDisponivel(true);
+
+    try {
+      adminToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.ADMIN);
+      restauranteToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.RESTAURANTE, restauranteId);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Nested
@@ -82,6 +98,7 @@ class ProdutoControllerIT {
     @Transactional
     void testCreateProdutoSuccess() throws Exception {
       mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -97,6 +114,7 @@ class ProdutoControllerIT {
       validRequest.setNome("");
 
       mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isBadRequest());
@@ -108,6 +126,7 @@ class ProdutoControllerIT {
       validRequest.setPreco(BigDecimal.valueOf(-10.00));
 
       mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isBadRequest());
@@ -124,6 +143,7 @@ class ProdutoControllerIT {
     void testGetProdutoSuccess() throws Exception {
       // Criar produto
       var response = mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -134,7 +154,8 @@ class ProdutoControllerIT {
       Long produtoId = objectMapper.readTree(response).get("id").asLong();
 
       // Buscar produto
-      mockMvc.perform(get("/api/produtos/" + produtoId)
+        mockMvc.perform(get("/api/produtos/" + produtoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.id", equalTo(produtoId.intValue())))
@@ -145,6 +166,7 @@ class ProdutoControllerIT {
     @DisplayName("❌ Deve retornar 404 quando produto não existe")
     void testGetProdutoNotFound() throws Exception {
       mockMvc.perform(get("/api/produtos/9999")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNotFound());
     }
@@ -160,6 +182,7 @@ class ProdutoControllerIT {
     void testUpdateProdutoSuccess() throws Exception {
       // Criar produto
       var createResponse = mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -174,7 +197,8 @@ class ProdutoControllerIT {
       updateRequest.setNome("Pizza Quattro Formaggi");
       updateRequest.setPreco(BigDecimal.valueOf(45.00));
 
-      mockMvc.perform(put("/api/produtos/" + produtoId)
+        mockMvc.perform(put("/api/produtos/" + produtoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(updateRequest)))
           .andExpect(status().isOk())
@@ -186,6 +210,7 @@ class ProdutoControllerIT {
     @DisplayName("❌ Deve retornar 404 quando produto não existe")
     void testUpdateProdutoNotFound() throws Exception {
       mockMvc.perform(put("/api/produtos/9999")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isNotFound());
@@ -202,6 +227,7 @@ class ProdutoControllerIT {
     void testDeleteProdutoSuccess() throws Exception {
       // Criar produto
       var createResponse = mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -212,12 +238,14 @@ class ProdutoControllerIT {
       Long produtoId = objectMapper.readTree(createResponse).get("id").asLong();
 
       // Deletar
-      mockMvc.perform(delete("/api/produtos/" + produtoId)
+        mockMvc.perform(delete("/api/produtos/" + produtoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNoContent());
 
       // Verificar se foi deletado
-      mockMvc.perform(get("/api/produtos/" + produtoId)
+        mockMvc.perform(get("/api/produtos/" + produtoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNotFound());
     }
@@ -226,6 +254,7 @@ class ProdutoControllerIT {
     @DisplayName("❌ Deve retornar 404 quando produto não existe")
     void testDeleteProdutoNotFound() throws Exception {
       mockMvc.perform(delete("/api/produtos/9999")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNotFound());
     }
@@ -241,6 +270,7 @@ class ProdutoControllerIT {
     void testUpdateAvailabilitySuccess() throws Exception {
       // Criar produto
       var createResponse = mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -252,7 +282,8 @@ class ProdutoControllerIT {
 
       // Desativar
       String requestBody = "{\"disponivel\": false}";
-      mockMvc.perform(patch("/api/produtos/" + produtoId + "/disponibilidade")
+        mockMvc.perform(patch("/api/produtos/" + produtoId + "/disponibilidade")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody))
           .andExpect(status().isOk())
@@ -270,12 +301,14 @@ class ProdutoControllerIT {
     void testListAvailableProducts() throws Exception {
       // Criar produto
       mockMvc.perform(post("/api/produtos")
+        .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Listar disponíveis
       mockMvc.perform(get("/api/produtos/disponivel")
+        .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -287,12 +320,14 @@ class ProdutoControllerIT {
     void testSearchByCategory() throws Exception {
       // Criar produto
       mockMvc.perform(post("/api/produtos")
+        .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Buscar por categoria
       mockMvc.perform(get("/api/produtos/categoria/Pizza")
+        .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -304,12 +339,14 @@ class ProdutoControllerIT {
     void testSearchByName() throws Exception {
       // Criar produto
       mockMvc.perform(post("/api/produtos")
+        .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Buscar por nome
       mockMvc.perform(get("/api/produtos/buscar?nome=Pizza")
+        .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -320,13 +357,27 @@ class ProdutoControllerIT {
     @Transactional
     void testListByRestaurante() throws Exception {
       // Criar produto
-      mockMvc.perform(post("/api/produtos")
+      var response = mockMvc.perform(post("/api/produtos")
+          .header("Authorization", "Bearer " + restauranteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated());
+          .andExpect(status().isCreated())
+          .andReturn()
+          .getResponse()
+          .getContentAsString();
+
+      Long produtoId = objectMapper.readTree(response).get("id").asLong();
+
+      // Vincular produto ao restaurante
+      var produto = produtoRepository.findById(produtoId).orElseThrow();
+      var rest = restauranteRepository.findById(restauranteId).orElseThrow();
+      rest.getProdutos().add(produto);
+      produto.getRestaurantes().add(rest);
+      restauranteRepository.save(rest);
 
       // Listar por restaurante
       mockMvc.perform(get("/api/produtos/restaurante/" + restauranteId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));

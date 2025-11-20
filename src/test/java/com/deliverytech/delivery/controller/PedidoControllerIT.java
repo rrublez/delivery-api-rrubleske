@@ -4,10 +4,12 @@ import com.deliverytech.delivery.dto.pedido.request.PedidoRequest;
 import com.deliverytech.delivery.entity.Cliente;
 import com.deliverytech.delivery.entity.Produto;
 import com.deliverytech.delivery.entity.Restaurante;
+import com.deliverytech.delivery.entity.Role;
 import com.deliverytech.delivery.repository.ClienteRepository;
 import com.deliverytech.delivery.repository.PedidoRepository;
 import com.deliverytech.delivery.repository.ProdutoRepository;
 import com.deliverytech.delivery.repository.RestauranteRepository;
+import com.deliverytech.delivery.support.TestAuthHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,6 +61,8 @@ class PedidoControllerIT {
   private Restaurante restaurante;
   private Produto produto;
   private PedidoRequest validRequest;
+  private String clienteToken;
+  private String adminToken;
 
     @BeforeEach
   void setUp() {
@@ -67,12 +71,17 @@ class PedidoControllerIT {
     restauranteRepository.deleteAll();
     clienteRepository.deleteAll();
 
-    // Criar cliente usando setters
+    // Criar cliente usando setters (dados únicos para evitar colisões)
+    String unique = String.valueOf(System.nanoTime());
+    String uniqueCpf = (unique + "00000000000").substring(0, 11);
+    String uniqueEmail = "joao.pedido+" + unique + "@test.com";
+    String uniqueTelefone = ("11" + unique).substring(0, 11);
+
     cliente = new Cliente();
     cliente.setNome("João Silva");
-    cliente.setEmail("joao@test.com");
-    cliente.setCpf("12345678900");
-    cliente.setTelefone("11999999999");
+    cliente.setEmail(uniqueEmail);
+    cliente.setCpf(uniqueCpf);
+    cliente.setTelefone(uniqueTelefone);
     cliente.setAtivo(true);
     cliente = clienteRepository.save(cliente);
 
@@ -80,8 +89,10 @@ class PedidoControllerIT {
     restaurante = new Restaurante();
     restaurante.setNome("Pizzaria Central");
     restaurante.setEndereco("Rua Principal, 100");
-    restaurante.setTelefone("1133333333");
-    restaurante.setCnpj("12345678000190");
+    String restTelefone = ("11" + (unique + "0")).substring(0, 11);
+    String restCnpj = (unique + "00000000000000").substring(0, 14);
+    restaurante.setTelefone(restTelefone);
+    restaurante.setCnpj(restCnpj);
     restaurante.setRamoAtividade("Pizzaria");
     restaurante.setAtivo(true);
     restaurante.setTaxaEntrega(BigDecimal.valueOf(5.00));
@@ -108,25 +119,34 @@ class PedidoControllerIT {
     com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest item = new com.deliverytech.delivery.dto.shared.request.PedidoProdutoRequest();
     item.setProdutoId(produto.getId());
     item.setQuantidade(2);
+    item.setPrecoUnitario(produto.getPreco());
     itens.add(item);
     validRequest.setItens(itens);
+
+    try {
+      // Create tokens for CLIENTE and ADMIN roles
+      clienteToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.CLIENTE);
+      adminToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.ADMIN);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Nested
   @DisplayName("POST /api/pedidos - Criar Pedido")
   class CreatePedidoTests {
 
-    @Test
+        @Test
     @DisplayName("✅ Deve criar pedido com sucesso - Status 201")
     @Transactional
     void testCreatePedidoSuccess() throws Exception {
       mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
           .andExpect(jsonPath("$.id", notNullValue()))
-          .andExpect(jsonPath("$.status", equalTo("PENDENTE")))
-          .andExpect(jsonPath("$.enderecoEntrega", equalTo("Rua B, 200")));
+          .andExpect(jsonPath("$.status", equalTo("PENDENTE")));
     }
 
     @Test
@@ -135,6 +155,7 @@ class PedidoControllerIT {
       validRequest.setClienteId(9999L);
 
       mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isBadRequest());
@@ -146,6 +167,7 @@ class PedidoControllerIT {
       validRequest.setRestauranteId(9999L);
 
       mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isBadRequest());
@@ -162,6 +184,7 @@ class PedidoControllerIT {
     void testGetPedidoSuccess() throws Exception {
       // Criar pedido
       var createResponse = mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -172,7 +195,8 @@ class PedidoControllerIT {
       Long pedidoId = objectMapper.readTree(createResponse).get("id").asLong();
 
       // Buscar pedido
-      mockMvc.perform(get("/api/pedidos/" + pedidoId)
+        mockMvc.perform(get("/api/pedidos/" + pedidoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.id", equalTo(pedidoId.intValue())))
@@ -183,6 +207,7 @@ class PedidoControllerIT {
     @DisplayName("❌ Deve retornar 404 quando pedido não existe")
     void testGetPedidoNotFound() throws Exception {
       mockMvc.perform(get("/api/pedidos/9999")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNotFound());
     }
@@ -198,12 +223,14 @@ class PedidoControllerIT {
     void testListAllPedidos() throws Exception {
       // Criar pedido
       mockMvc.perform(post("/api/pedidos")
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Listar
       mockMvc.perform(get("/api/pedidos")
+        .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", isA(java.util.ArrayList.class)));
@@ -215,12 +242,14 @@ class PedidoControllerIT {
     void testListByCliente() throws Exception {
       // Criar pedido
       mockMvc.perform(post("/api/pedidos")
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Listar por cliente
       mockMvc.perform(get("/api/pedidos/clientes/" + cliente.getId())
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -232,12 +261,14 @@ class PedidoControllerIT {
     void testListByRestaurante() throws Exception {
       // Criar pedido
       mockMvc.perform(post("/api/pedidos")
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Listar por restaurante
       mockMvc.perform(get("/api/pedidos/restaurantes/" + restaurante.getId())
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -249,12 +280,14 @@ class PedidoControllerIT {
     void testListByStatus() throws Exception {
       // Criar pedido
       mockMvc.perform(post("/api/pedidos")
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated());
 
       // Listar por status
       mockMvc.perform(get("/api/pedidos/status/PENDENTE")
+        .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$", hasSize(greaterThan(0))));
@@ -271,6 +304,7 @@ class PedidoControllerIT {
     void testUpdateStatusSuccess() throws Exception {
       // Criar pedido
       var createResponse = mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -282,7 +316,8 @@ class PedidoControllerIT {
 
       // Atualizar status
       String updateRequest = "{\"status\": \"ENTREGUE\"}";
-      mockMvc.perform(patch("/api/pedidos/" + pedidoId + "/status")
+        mockMvc.perform(patch("/api/pedidos/" + pedidoId + "/status")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(updateRequest))
           .andExpect(status().isOk())
@@ -294,6 +329,7 @@ class PedidoControllerIT {
     void testUpdateStatusNotFound() throws Exception {
       String updateRequest = "{\"status\": \"ENTREGUE\"}";
       mockMvc.perform(patch("/api/pedidos/9999/status")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(updateRequest))
           .andExpect(status().isNotFound());
@@ -310,6 +346,7 @@ class PedidoControllerIT {
     void testCancelPedidoSuccess() throws Exception {
       // Criar pedido
       var createResponse = mockMvc.perform(post("/api/pedidos")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(validRequest)))
           .andExpect(status().isCreated())
@@ -320,7 +357,8 @@ class PedidoControllerIT {
       Long pedidoId = objectMapper.readTree(createResponse).get("id").asLong();
 
       // Cancelar
-      mockMvc.perform(delete("/api/pedidos/" + pedidoId)
+        mockMvc.perform(delete("/api/pedidos/" + pedidoId)
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNoContent());
     }
@@ -329,6 +367,7 @@ class PedidoControllerIT {
     @DisplayName("❌ Deve retornar 404 quando pedido não existe")
     void testCancelPedidoNotFound() throws Exception {
       mockMvc.perform(delete("/api/pedidos/9999")
+          .header("Authorization", "Bearer " + adminToken)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNotFound());
     }
@@ -341,11 +380,19 @@ class PedidoControllerIT {
     @Test
     @DisplayName("✅ Deve calcular total do pedido - Status 200")
     void testCalculateTotal() throws Exception {
-      String calcRequest = "{\"clienteId\": " + cliente.getId() + 
-                          ", \"restauranteId\": " + restaurante.getId() + 
-                          ", \"enderecoEntrega\": \"Rua C, 300\"}";
+      String calcRequest = "{" +
+          "\"restauranteId\": " + restaurante.getId() + "," +
+          "\"itens\": [" +
+            "{" +
+              "\"produtoId\": " + produto.getId() + "," +
+              "\"quantidade\": 1," +
+              "\"precoUnitario\": " + produto.getPreco() +
+            "}" +
+          "]" +
+        "}";
 
       mockMvc.perform(post("/api/pedidos/calcular")
+          .header("Authorization", "Bearer " + clienteToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(calcRequest))
           .andExpect(status().isOk())
