@@ -32,6 +32,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     produto.setPreco(request.getPreco());
     produto.setDisponivel(request.getDisponivel() != null ? request.getDisponivel() : true);
     produto.setCategoria(request.getCategoria());
+    produto.setEstoque(request.getEstoque() != null ? request.getEstoque() : 0);
 
     var produtoSalvo = produtoRepository.save(produto);
     return mapearParaResponse(produtoSalvo);
@@ -55,6 +56,9 @@ public class ProdutoServiceImpl implements ProdutoService {
     produto.setPreco(request.getPreco());
     produto.setDisponivel(request.getDisponivel());
     produto.setCategoria(request.getCategoria());
+    if (request.getEstoque() != null) {
+      produto.setEstoque(request.getEstoque());
+    }
 
     var produtoAtualizado = produtoRepository.save(produto);
     return mapearParaResponse(produtoAtualizado);
@@ -141,7 +145,8 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.getDescricao(),
         produto.getPreco(),
         produto.getDisponivel(),
-        produto.getCategoria()
+        produto.getCategoria(),
+        produto.getEstoque()
     );
   }
 

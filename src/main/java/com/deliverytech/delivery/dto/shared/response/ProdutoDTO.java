@@ -22,4 +22,6 @@ public class ProdutoDTO {
 
   private String categoria;
 
+  private Integer estoque;
+
 }

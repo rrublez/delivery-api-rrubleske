@@ -105,6 +105,7 @@ class PedidoControllerIT {
     produto.setPreco(BigDecimal.valueOf(35.00));
     produto.setDisponivel(true);
     produto.setCategoria("Pizza");
+    produto.setEstoque(100); // Adicionar estoque suficiente para os testes
     produto = produtoRepository.save(produto);
 
     // Request padrão

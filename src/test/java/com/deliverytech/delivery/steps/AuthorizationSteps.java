@@ -262,6 +262,7 @@ public class AuthorizationSteps {
     body.put("preco", new BigDecimal("45.90"));
     body.put("disponivel", true);
     body.put("categoria", "Cozinha");
+    body.put("estoque", 100); // Estoque suficiente para testes de pedidos
     String token = tokens.get(email);
     lastResponse = exchange("/api/produtos", HttpMethod.POST, body, token);
     if (lastResponse.getStatusCode().is2xxSuccessful()) {
