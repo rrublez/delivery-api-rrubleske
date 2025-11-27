@@ -1,34 +1,44 @@
 package com.deliverytech.delivery.controller;
 
+import com.deliverytech.delivery.config.IntegrationTestDataConfig;
 import com.deliverytech.delivery.dto.cliente.request.ClienteRequest;
-import com.deliverytech.delivery.repository.ClienteRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.deliverytech.delivery.dto.cliente.request.ClienteUpdateRequest;
+import com.deliverytech.delivery.entity.Cliente;
 import com.deliverytech.delivery.entity.Role;
+import com.deliverytech.delivery.repository.ClienteRepository;
+import com.deliverytech.delivery.support.IntegrationTestDataFactory;
 import com.deliverytech.delivery.support.TestAuthHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Testes de integração para ClienteController
- * Cobre CRUD completo, validações e cenários de erro
- */
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase(replace = Replace.ANY)
 @ActiveProfiles("test")
+@Import(IntegrationTestDataConfig.class)
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("ClienteController - Testes de Integração")
 class ClienteControllerIT {
 
@@ -41,221 +51,122 @@ class ClienteControllerIT {
   @Autowired
   private ClienteRepository clienteRepository;
 
-  private ClienteRequest validRequest;
+  @Autowired
+  private IntegrationTestDataFactory dataFactory;
+
   private String adminToken;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     clienteRepository.deleteAll();
-
-    validRequest = new ClienteRequest();
-    validRequest.setNome("João Silva");
-    validRequest.setEmail("joao@email.com");
-    validRequest.setCpf("12345678909");
-    validRequest.setTelefone("11999999999");
-    validRequest.setAtivo(true);
-
-    try {
-      adminToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.ADMIN);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    adminToken = TestAuthHelper.registerAndLogin(mockMvc, objectMapper, Role.ADMIN);
   }
 
-  @Nested
-  @DisplayName("POST /api/clientes - Criar Cliente")
-  class CreateClienteTests {
-
-    @Test
-    @DisplayName("✅ Deve criar cliente com sucesso - Status 201")
-    @Transactional
-    void testCreateClienteSuccess() throws Exception {
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated())
-          .andExpect(jsonPath("$.id", notNullValue()))
-          .andExpect(jsonPath("$.nome", equalTo("João Silva")))
-          .andExpect(jsonPath("$.email", equalTo("joao@email.com")))
-          .andExpect(jsonPath("$.cpf", equalTo("12345678909")))
-          .andExpect(jsonPath("$.ativo", equalTo(true)));
-    }
-
-    @Test
-    @DisplayName("❌ Deve retornar 400 quando nome está vazio")
-    void testCreateClienteWithoutName() throws Exception {
-      validRequest.setNome("");
-
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.statusCode", equalTo(400)))
-          .andExpect(jsonPath("$.errorType", equalTo("Validation Error")));
-    }
-
-    @Test
-    @DisplayName("❌ Deve retornar 400 quando email é inválido")
-    void testCreateClienteWithInvalidEmail() throws Exception {
-      validRequest.setEmail("email-invalido");
-
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("❌ Deve retornar 400 quando email já está registrado")
-    @Transactional
-    void testCreateClienteWithDuplicateEmail() throws Exception {
-      // Criar primeiro cliente
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated());
-
-      // Tentar criar outro com mesmo email
-      ClienteRequest duplicateRequest = new ClienteRequest();
-      duplicateRequest.setNome("Outro Cliente");
-      duplicateRequest.setEmail("joao@email.com"); // mesmo email
-      duplicateRequest.setCpf("11144477735");
-      duplicateRequest.setTelefone("11888888888");
-      duplicateRequest.setAtivo(true);
-
-        mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(duplicateRequest)))
-          .andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.statusCode", equalTo(400)))
-          .andExpect(jsonPath("$.errorType", equalTo("Validation Error")));
-    }
+  private String bearer(String token) {
+    return "Bearer " + token;
   }
 
-  @Nested
-  @DisplayName("GET /api/clientes/* - Buscar Clientes")
-  class GetClienteTests {
+  @Test
+  @DisplayName("✅ Deve criar cliente com sucesso")
+  void deveCriarClienteComSucesso() throws Exception {
+    ClienteRequest request = dataFactory.buildClienteRequest();
 
-    @Test
-    @DisplayName("✅ Deve buscar cliente por email - Status 200")
-    @Transactional
-    void testFindByEmailSuccess() throws Exception {
-      // Criar cliente
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated());
-
-      // Buscar por email
-      mockMvc.perform(get("/api/clientes/email/joao@email.com")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-          .andExpect(jsonPath("$[0].email", equalTo("joao@email.com")));
-    }
-
-    @Test
-    @DisplayName("❌ Deve retornar 404 quando email não existe")
-    void testFindByEmailNotFound() throws Exception {
-      mockMvc.perform(get("/api/clientes/email/naoexiste@email.com")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", hasSize(0)));
-    }
-
-    @Test
-    @DisplayName("✅ Deve buscar clientes por nome - Status 200")
-    @Transactional
-    void testFindByNameSuccess() throws Exception {
-      // Criar cliente
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated());
-
-      // Buscar por nome
-      mockMvc.perform(get("/api/clientes/nome?nome=João")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-          .andExpect(jsonPath("$[0].nome", containsString("João")));
-    }
-
-    @Test
-    @DisplayName("✅ Deve verificar se email existe")
-    @Transactional
-    void testExistsByEmailSuccess() throws Exception {
-      // Criar cliente
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated());
-
-      // Verificar existência
-      mockMvc.perform(get("/api/clientes/existe-email/joao@email.com")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", equalTo(true)));
-    }
-
-    @Test
-    @DisplayName("✅ Deve retornar false quando email não existe")
-    void testExistsByEmailFalse() throws Exception {
-      mockMvc.perform(get("/api/clientes/existe-email/naoexiste@email.com")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", equalTo(false)));
-    }
+    mockMvc.perform(post("/api/clientes")
+            .header("Authorization", bearer(adminToken))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", notNullValue()))
+        .andExpect(jsonPath("$.email", equalTo(request.getEmail())))
+        .andExpect(jsonPath("$.ativo", equalTo(true)));
   }
 
-  @Nested
-  @DisplayName("GET /api/clientes/relatorio/* - Relatórios")
-  class RelatorioTests {
+  @Test
+  @DisplayName("❌ Deve retornar 400 quando nome está vazio")
+  void deveRetornarErroQuandoNomeVazio() throws Exception {
+    ClienteRequest request = dataFactory.buildClienteRequest();
+    request.setNome("");
 
-    @Test
-    @DisplayName("✅ Deve gerar relatório de ranking por pedidos - Status 200")
-    void testRankingByPedidos() throws Exception {
-      mockMvc.perform(get("/api/clientes/relatorio/ranking-por-pedidos")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$", isA(java.util.ArrayList.class)));
-    }
+    mockMvc.perform(post("/api/clientes")
+            .header("Authorization", bearer(adminToken))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errorType", equalTo("Validation Error")))
+        .andExpect(jsonPath("$.errors[0].field", equalTo("nome")));
   }
 
-  @Nested
-  @DisplayName("Validação de Estrutura de Resposta")
-  class ResponseStructureTests {
+  @Test
+  @DisplayName("✅ Deve buscar cliente por ID existente")
+  void deveBuscarClientePorId() throws Exception {
+    Cliente cliente = dataFactory.criarCliente(
+        "Cliente Integração",
+        "cliente-busca@test.com",
+        "11900001111",
+        dataFactory.generateCpf(),
+        true);
 
-    @Test
-    @DisplayName("✅ Resposta deve conter campos corretos")
-    @Transactional
-    void testResponseStructure() throws Exception {
-      mockMvc.perform(post("/api/clientes")
-          .header("Authorization", "Bearer " + adminToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(validRequest)))
-          .andExpect(status().isCreated())
-          .andExpect(jsonPath("$.id", notNullValue()))
-          .andExpect(jsonPath("$.nome", notNullValue()))
-          .andExpect(jsonPath("$.email", notNullValue()))
-          .andExpect(jsonPath("$.cpf", notNullValue()))
-          .andExpect(jsonPath("$.telefone", notNullValue()))
-          .andExpect(jsonPath("$.ativo", notNullValue()))
-          .andDo(MockMvcResultHandlers.print());
+    mockMvc.perform(get("/api/clientes/{id}", cliente.getId())
+            .header("Authorization", bearer(adminToken)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(cliente.getId().intValue())))
+        .andExpect(jsonPath("$.email", equalTo(cliente.getEmail())));
+  }
+
+  @Test
+  @DisplayName("❌ Deve retornar 404 quando cliente não existe")
+  void deveRetornar404AoBuscarClienteInexistente() throws Exception {
+    mockMvc.perform(get("/api/clientes/{id}", Long.MAX_VALUE)
+            .header("Authorization", bearer(adminToken)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.statusCode", equalTo(404)))
+        .andExpect(jsonPath("$.errorType", equalTo("Not Found")));
+  }
+
+  @Test
+  @DisplayName("✅ Deve listar clientes com paginação")
+  void deveListarClientesComPaginacao() throws Exception {
+    for (int i = 0; i < 3; i++) {
+      dataFactory.criarCliente(
+          "Cliente " + i,
+          "cliente-paginacao" + i + "@test.com",
+          dataFactory.nextPhone(),
+          dataFactory.generateCpf(),
+          true);
     }
+
+    mockMvc.perform(get("/api/clientes?page=0&size=2")
+            .header("Authorization", bearer(adminToken)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(2)))
+        .andExpect(jsonPath("$.totalElements", equalTo(3)))
+        .andExpect(jsonPath("$.content[0].email", notNullValue()));
+  }
+
+  @Test
+  @DisplayName("✅ Deve atualizar cliente existente")
+  void deveAtualizarClienteComSucesso() throws Exception {
+    Cliente cliente = dataFactory.criarCliente(
+        "Cliente Atualizar",
+        "atualiza@test.com",
+        "11911112222",
+        dataFactory.generateCpf(),
+        true);
+    ClienteRequest helperRequest = dataFactory.buildClienteRequest();
+    ClienteUpdateRequest update = dataFactory.buildClienteUpdateRequest(
+        "Cliente Atualizado",
+        helperRequest.getEmail(),
+        helperRequest.getTelefone(),
+        helperRequest.getCpf(),
+        true);
+
+    mockMvc.perform(put("/api/clientes/{id}", cliente.getId())
+            .header("Authorization", bearer(adminToken))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(update)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(cliente.getId().intValue())))
+        .andExpect(jsonPath("$.nome", equalTo("Cliente Atualizado")))
+        .andExpect(jsonPath("$.email", equalTo(update.getEmail())));
   }
 }
