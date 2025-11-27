@@ -74,17 +74,71 @@ docker compose up --build
 
 O `docker-compose.yml` sobe Postgres 16 + aplicação na mesma rede, com variáveis de ambiente para conexão.
 
-### Kubernetes
+### Kubernetes (Local com Minikube)
+
+#### Pré-requisitos
+
+Instale o [Minikube](https://minikube.sigs.k8s.io/docs/start/) e inicie o cluster:
 
 ```bash
-kubectl apply -f k8s/delivery-api-configmap.yaml
+minikube start --memory=4096 --cpus=2
+```
+
+#### Build e deploy local
+
+```bash
+# Usar o Docker daemon do Minikube para build local
+eval $(minikube docker-env)
+
+# Build da imagem localmente
+docker build -t ghcr.io/rrublez/delivery-api-rrubleske:latest .
+
+# Aplicar os manifests (na ordem correta)
 kubectl apply -f k8s/delivery-api-secret.yaml
+kubectl apply -f k8s/delivery-api-configmap.yaml
+kubectl apply -f k8s/postgres-deployment.yaml
+kubectl apply -f k8s/postgres-service.yaml
 kubectl apply -f k8s/delivery-api-deployment.yaml
 kubectl apply -f k8s/delivery-api-service.yaml
+
+# Aguardar pods ficarem prontos
+kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
+kubectl wait --for=condition=ready pod -l app=delivery-api --timeout=180s
+```
+
+#### Acessar a aplicação
+
+```bash
+# Expor o serviço localmente
+minikube service delivery-api-service --url
+```
+
+Ou via port-forward:
+
+```bash
+kubectl port-forward svc/delivery-api-service 8080:80
+```
+
+Acesse: http://localhost:8080/swagger-ui/index.html
+
+#### Comandos úteis
+
+```bash
+# Ver status dos pods
+kubectl get pods
+
+# Ver logs da aplicação
+kubectl logs -l app=delivery-api -f
+
+# Ver logs do PostgreSQL
+kubectl logs -l app=postgres -f
+
+# Limpar recursos
+kubectl delete -f k8s/
 ```
 
 - **Deployment**: 2 réplicas, probes em `/actuator/health`, limites de recursos
-- **Service**: LoadBalancer na porta 8080
+- **Service**: LoadBalancer na porta 80 → 8080
 
 ---
 

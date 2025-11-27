@@ -7,5 +7,5 @@ metadata:
 data:
   SPRING_PROFILES_ACTIVE: "prod"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/delivery"
-  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
   SERVER_PORT: "8080"

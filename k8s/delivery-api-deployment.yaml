@@ -17,7 +17,7 @@ spec:
       containers:
         - name: delivery-api
           image: ghcr.io/rrublez/delivery-api-rrubleske:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080
           envFrom:
@@ -47,4 +47,6 @@ spec:
               cpu: 1
               memory: 1Gi
           volumeMounts: []
+      imagePullSecrets:
+        - name: ghcr-secret
       restartPolicy: Always

@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "delivery_user"]
+      test: ["CMD", "pg_isready", "-U", "delivery_user", "-d", "delivery"]
       interval: 10s
       retries: 5
     networks:
