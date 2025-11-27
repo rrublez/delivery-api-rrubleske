@@ -1,12 +1,17 @@
 package com.deliverytech.delivery.service.impl;
 
 import com.deliverytech.delivery.dto.cliente.request.ClienteRequest;
+import com.deliverytech.delivery.dto.cliente.request.ClienteUpdateRequest;
 import com.deliverytech.delivery.dto.cliente.response.ClienteResponse;
 import com.deliverytech.delivery.dto.shared.response.RankingClienteResponse;
 import com.deliverytech.delivery.entity.Cliente;
+import com.deliverytech.delivery.exception.ConflictException;
+import com.deliverytech.delivery.exception.ResourceNotFoundException;
 import com.deliverytech.delivery.repository.ClienteRepository;
 import com.deliverytech.delivery.service.ClienteService;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,21 @@ public class ClienteServiceImpl implements ClienteService {
 
     var clienteSalvo = clienteRepository.save(cliente);
     return mapearParaResponse(clienteSalvo);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public ClienteResponse findById(Long id) {
+    return clienteRepository.findById(id)
+        .map(this::mapearParaResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<ClienteResponse> findAll(Pageable pageable) {
+    return clienteRepository.findAll(pageable)
+        .map(this::mapearParaResponse);
   }
 
   @Override
@@ -68,6 +88,29 @@ public class ClienteServiceImpl implements ClienteService {
   @Transactional(readOnly = true)
   public List<RankingClienteResponse> obterRankingClientesPorNumeroPedidos() {
     return clienteRepository.obterRankingClientesPorNumeroPedidos();
+  }
+
+  @Override
+  @Transactional
+  public ClienteResponse atualizarCliente(Long id, ClienteUpdateRequest request) {
+    var cliente = clienteRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+    if (clienteRepository.existsByEmailIgnoreCaseAndIdNot(request.getEmail(), id)) {
+      throw new ConflictException("Email já está registrado no sistema");
+    }
+    if (clienteRepository.existsByCpfAndIdNot(request.getCpf(), id)) {
+      throw new ConflictException("CPF já está registrado no sistema");
+    }
+
+    cliente.setNome(request.getNome());
+    cliente.setEmail(request.getEmail());
+    cliente.setTelefone(request.getTelefone());
+    cliente.setCpf(request.getCpf());
+    cliente.setAtivo(request.getAtivo());
+
+    var atualizado = clienteRepository.save(cliente);
+    return mapearParaResponse(atualizado);
   }
 
   private ClienteResponse mapearParaResponse(Cliente cliente) {

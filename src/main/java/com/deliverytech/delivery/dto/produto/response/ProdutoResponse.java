@@ -30,4 +30,7 @@ public class ProdutoResponse {
   @Schema(description = "Categoria do produto", example = "Pizza")
   private String categoria;
 
+  @Schema(description = "Quantidade em estoque", example = "100")
+  private Integer estoque;
+
 }

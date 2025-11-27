@@ -69,6 +69,21 @@ public class PedidoServiceImpl implements PedidoService {
         var produto = produtoRepository.findById(itemRequest.getProdutoId())
           .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado"));
 
+      // Validar disponibilidade do produto
+      if (produto.getDisponivel() == null || !produto.getDisponivel()) {
+        throw new IllegalArgumentException("Produto '" + produto.getNome() + "' não está disponível");
+      }
+      
+      // Validar estoque suficiente
+      if (produto.getEstoque() < itemRequest.getQuantidade()) {
+        throw new IllegalArgumentException("Estoque insuficiente para o produto '" + produto.getNome() + 
+            "'. Disponível: " + produto.getEstoque() + ", Solicitado: " + itemRequest.getQuantidade());
+      }
+      
+      // Reduzir estoque
+      produto.setEstoque(produto.getEstoque() - itemRequest.getQuantidade());
+      produtoRepository.save(produto);
+
       var item = new PedidoProduto();
       item.setPedido(pedido);
       item.setProduto(produto);
@@ -241,7 +256,8 @@ public class PedidoServiceImpl implements PedidoService {
           produto.getDescricao(),
           produto.getPreco(),
           produto.getDisponivel(),
-          produto.getCategoria()
+          produto.getCategoria(),
+          produto.getEstoque()
       );
 
       itens.add(new PedidoProdutoResponse(
@@ -314,7 +330,8 @@ public class PedidoServiceImpl implements PedidoService {
               item.getProduto().getDescricao(),
               item.getProduto().getPreco(),
               item.getProduto().getDisponivel(),
-              item.getProduto().getCategoria()
+              item.getProduto().getCategoria(),
+              item.getProduto().getEstoque()
           );
           return new PedidoProdutoResponse(
               item.getId(),

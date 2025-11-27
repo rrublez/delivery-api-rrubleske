@@ -33,6 +33,9 @@ public class Produto {
   private BigDecimal preco;
 
   private Boolean disponivel;
+  
+  @Column(nullable = false)
+  private Integer estoque = 0;
 
   @Column(length = 20)
   private String categoria;

@@ -40,4 +40,7 @@ public class ProdutoRequest {
   @Schema(description = "Categoria do produto", example = "Pizza", minLength = 3, maxLength = 20)
   private String categoria;
 
+  @Schema(description = "Quantidade em estoque", example = "100")
+  private Integer estoque;
+
 }
