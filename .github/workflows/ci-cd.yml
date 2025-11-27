@@ -1,0 +1,165 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, feature/entrega5]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ===========================================
+  # Job 1: Build e Testes
+  # ===========================================
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build e Testes
+        run: mvn -B clean verify
+
+      - name: Upload relatório JaCoCo
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          retention-days: 7
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/delivery-api-1.0.0.jar
+          retention-days: 1
+
+  # ===========================================
+  # Job 2: Build e Push da Imagem Docker
+  # ===========================================
+  docker-build:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadata da imagem
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build e Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ===========================================
+  # Job 3: Deploy no Kubernetes
+  # ===========================================
+  deploy:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    environment: production
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configurar kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Validar conexão com cluster
+        run: kubectl cluster-info
+
+      - name: Validar ConfigMap e Secret
+        run: |
+          echo "Validando variáveis de configuração..."
+          
+          # Verificar se as variáveis obrigatórias estão definidas
+          if ! grep -q "SPRING_DATASOURCE_URL" k8s/delivery-api-configmap.yaml; then
+            echo "❌ SPRING_DATASOURCE_URL não encontrada no ConfigMap"
+            exit 1
+          fi
+          
+          if ! grep -q "SPRING_DATASOURCE_USERNAME" k8s/delivery-api-secret.yaml; then
+            echo "❌ SPRING_DATASOURCE_USERNAME não encontrada no Secret"
+            exit 1
+          fi
+          
+          echo "✅ Variáveis de configuração validadas"
+
+      - name: Atualizar imagem no Deployment
+        run: |
+          # Substitui a imagem no deployment com a tag atual
+          sed -i "s|image: .*delivery-api.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/delivery-api-deployment.yaml
+
+      - name: Aplicar manifestos Kubernetes
+        run: |
+          kubectl apply -f k8s/delivery-api-configmap.yaml
+          kubectl apply -f k8s/delivery-api-secret.yaml
+          kubectl apply -f k8s/delivery-api-deployment.yaml
+          kubectl apply -f k8s/delivery-api-service.yaml
+
+      - name: Aguardar rollout
+        run: |
+          kubectl rollout status deployment/delivery-api --timeout=300s
+
+      - name: Verificar saúde da aplicação
+        run: |
+          echo "Aguardando pods ficarem prontos..."
+          kubectl wait --for=condition=ready pod -l app=delivery-api --timeout=120s
+          
+          echo "✅ Deploy concluído com sucesso!"
+          kubectl get pods -l app=delivery-api

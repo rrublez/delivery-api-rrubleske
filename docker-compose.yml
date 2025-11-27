@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: delivery-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: delivery
+      POSTGRES_USER: delivery_user
+      POSTGRES_PASSWORD: change-me
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "delivery_user"]
+      interval: 10s
+      retries: 5
+    networks:
+      - delivery-network
+
+  delivery-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delivery-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery
+      SPRING_DATASOURCE_USERNAME: delivery_user
+      SPRING_DATASOURCE_PASSWORD: change-me
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8080
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - delivery-network
+
+volumes:
+  postgres-data:
+
+networks:
+  delivery-network:
+    driver: bridge

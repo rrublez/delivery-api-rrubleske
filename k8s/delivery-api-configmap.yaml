@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: delivery-api-config
+  labels:
+    app: delivery-api
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/delivery"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+  SERVER_PORT: "8080"
