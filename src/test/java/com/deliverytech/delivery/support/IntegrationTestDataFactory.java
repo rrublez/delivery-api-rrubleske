@@ -117,7 +117,30 @@ public class IntegrationTestDataFactory {
   }
 
   public String generateCpf() {
-    return randomDigits(11);
+    int[] digits = new int[11];
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+
+    for (int i = 0; i < 9; i++) {
+      digits[i] = random.nextInt(0, 10);
+    }
+
+    digits[9] = calculateCpfDigit(digits, 9);
+    digits[10] = calculateCpfDigit(digits, 10);
+
+    StringBuilder builder = new StringBuilder(11);
+    for (int digit : digits) {
+      builder.append(digit);
+    }
+    return builder.toString();
+  }
+
+  private int calculateCpfDigit(int[] digits, int length) {
+    int sum = 0;
+    for (int i = 0; i < length; i++) {
+      sum += digits[i] * ((length + 1) - i);
+    }
+    int remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
   }
 
   public String nextPhone() {

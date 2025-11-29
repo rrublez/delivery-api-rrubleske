@@ -7,6 +7,7 @@ import com.deliverytech.delivery.dto.restaurante.request.RestauranteRequest;
 import com.deliverytech.delivery.dto.restaurante.response.RestaurantePróximoResponse;
 import com.deliverytech.delivery.dto.restaurante.response.RestauranteResponse;
 import com.deliverytech.delivery.dto.restaurante.response.TaxaEntregaResponse;
+import org.springframework.lang.NonNull;
 
 public interface RestauranteService {
 
@@ -16,7 +17,7 @@ public interface RestauranteService {
   // READ
   List<RestauranteResponse> listarTodos(String ramoAtividade, Boolean ativo);
 
-  RestauranteResponse obterPorId(Long id);
+  RestauranteResponse obterPorId(@NonNull Long id);
 
   List<RestauranteResponse> findByRamoAtividade(String ramoAtividade);
 
@@ -25,12 +26,12 @@ public interface RestauranteService {
   List<RestauranteResponse> findByTaxaEntregaLessThanEqual(BigDecimal taxa);
 
   // UPDATE
-  RestauranteResponse atualizarRestaurante(Long id, RestauranteRequest request);
+  RestauranteResponse atualizarRestaurante(@NonNull Long id, RestauranteRequest request);
 
-  RestauranteResponse atualizarStatus(Long id, AtualizarStatusRestauranteRequest request);
+  RestauranteResponse atualizarStatus(@NonNull Long id, AtualizarStatusRestauranteRequest request);
 
   // REPORTS & CÁLCULOS
-  TaxaEntregaResponse calcularTaxaEntrega(Long id, String cep);
+  TaxaEntregaResponse calcularTaxaEntrega(@NonNull Long id, String cep);
 
   List<RestaurantePróximoResponse> listarProximos(String cep, Double raioKm);
 

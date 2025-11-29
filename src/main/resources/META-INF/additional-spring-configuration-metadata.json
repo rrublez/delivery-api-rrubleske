@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "spring.security.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Chave secreta base64 utilizada na assinatura do JWT."
+    },
+    {
+      "name": "spring.security.jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Tempo de expiração do JWT em milissegundos."
+    }
+  ]
+}

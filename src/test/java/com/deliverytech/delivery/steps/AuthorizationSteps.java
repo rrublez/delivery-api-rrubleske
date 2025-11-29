@@ -72,7 +72,7 @@ public class AuthorizationSteps {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @Value("${security.jwt.secret}")
+  @Value("${spring.security.jwt.secret}")
   private String jwtSecret;
 
   private final Map<String, String> tokens = new HashMap<>();

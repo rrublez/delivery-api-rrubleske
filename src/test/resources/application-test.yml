@@ -21,12 +21,15 @@ spring:
   main:
     banner-mode: off
 
+  cache:
+    type: simple
+
 logging:
   level:
     root: warn
-    "org.springframework": warn
-    "org.springframework.boot": warn
-    "org.springframework.web": warn
-    "org.hibernate": error
-    "org.apache.catalina": error
-    com.deliverytech.delivery: debug
+    '[org.springframework]': warn
+    '[org.springframework.boot]': warn
+    '[org.springframework.web]': warn
+    '[org.hibernate]': error
+    '[org.apache.catalina]': error
+    '[com.deliverytech.delivery]': debug

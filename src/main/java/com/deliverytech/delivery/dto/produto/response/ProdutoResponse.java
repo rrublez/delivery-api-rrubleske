@@ -1,5 +1,7 @@
 package com.deliverytech.delivery.dto.produto.response;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,7 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(name = "ProdutoResponse", description = "Response com os dados do produto")
-public class ProdutoResponse {
+public class ProdutoResponse implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Schema(description = "Identificador único do produto", example = "1")
   private Long id;

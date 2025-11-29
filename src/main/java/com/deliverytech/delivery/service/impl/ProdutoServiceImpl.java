@@ -1,5 +1,10 @@
 package com.deliverytech.delivery.service.impl;
 
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_PRODUTO_POR_ID;
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_PRODUTOS_POR_CATEGORIA;
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_PRODUTOS_POR_NOME;
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_PRODUTOS_POR_RESTAURANTE;
+
 import com.deliverytech.delivery.dto.produto.request.AtualizarDisponibilidadeProdutoRequest;
 import com.deliverytech.delivery.dto.produto.request.ProdutoRequest;
 import com.deliverytech.delivery.dto.produto.response.FaturamentoPorCategoriaResponse;
@@ -11,6 +16,10 @@ import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.ProdutoService;
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +34,12 @@ public class ProdutoServiceImpl implements ProdutoService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_PRODUTO_POR_ID, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_CATEGORIA, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_RESTAURANTE, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_NOME, allEntries = true)
+  })
   public ProdutoResponse criarProduto(ProdutoRequest request) {
     var produto = new Produto();
     produto.setNome(request.getNome());
@@ -40,14 +55,21 @@ public class ProdutoServiceImpl implements ProdutoService {
 
   @Override
   @Transactional(readOnly = true)
-  public ProdutoResponse obterPorId(Long id) {
+  @Cacheable(value = CACHE_PRODUTO_POR_ID, key = "#id")
+  public ProdutoResponse obterPorId(@NonNull Long id) {
     var produto = produtoRepository.findById(id)
         .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     return mapearParaResponse(produto);
   }
 
   @Override
-  public ProdutoResponse atualizarProduto(Long id, ProdutoRequest request) {
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_PRODUTO_POR_ID, key = "#id"),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_CATEGORIA, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_RESTAURANTE, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_NOME, allEntries = true)
+  })
+  public ProdutoResponse atualizarProduto(@NonNull Long id, ProdutoRequest request) {
     var produto = produtoRepository.findById(id)
       .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
@@ -65,14 +87,26 @@ public class ProdutoServiceImpl implements ProdutoService {
   }
 
   @Override
-  public void deletarProduto(Long id) {
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_PRODUTO_POR_ID, key = "#id"),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_CATEGORIA, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_RESTAURANTE, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_NOME, allEntries = true)
+  })
+  public void deletarProduto(@NonNull Long id) {
     var produto = produtoRepository.findById(id)
         .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
     produtoRepository.delete(produto);
   }
 
   @Override
-  public ProdutoResponse atualizarDisponibilidade(Long id, AtualizarDisponibilidadeProdutoRequest request) {
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_PRODUTO_POR_ID, key = "#id"),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_CATEGORIA, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_RESTAURANTE, allEntries = true),
+      @CacheEvict(value = CACHE_PRODUTOS_POR_NOME, allEntries = true)
+  })
+  public ProdutoResponse atualizarDisponibilidade(@NonNull Long id, AtualizarDisponibilidadeProdutoRequest request) {
     var produto = produtoRepository.findById(id)
       .orElseThrow(() -> new com.deliverytech.delivery.exception.ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
@@ -83,6 +117,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(value = CACHE_PRODUTOS_POR_RESTAURANTE, key = "#restauranteId")
   public List<ProdutoResponse> findByRestauranteId(Long restauranteId) {
     return produtoRepository.findByRestauranteId(restauranteId)
         .stream()
@@ -101,6 +136,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(value = CACHE_PRODUTOS_POR_CATEGORIA, key = "#categoria")
   public List<ProdutoResponse> findByCategoria(String categoria) {
     return produtoRepository.findByCategoria(categoria)
         .stream()
@@ -119,6 +155,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(value = CACHE_PRODUTOS_POR_NOME, key = "#nome")
   public List<ProdutoResponse> findByNome(String nome) {
     return produtoRepository.findByNome(nome)
         .stream()
