@@ -7,20 +7,21 @@ import com.deliverytech.delivery.dto.produto.request.ProdutoRequest;
 import com.deliverytech.delivery.dto.produto.response.FaturamentoPorCategoriaResponse;
 import com.deliverytech.delivery.dto.produto.response.ProdutoMaisVendidoResponse;
 import com.deliverytech.delivery.dto.produto.response.ProdutoResponse;
+import org.springframework.lang.NonNull;
 
 public interface ProdutoService {
 
   // CRUD Básico
   ProdutoResponse criarProduto(ProdutoRequest request);
 
-  ProdutoResponse obterPorId(Long id);
+  ProdutoResponse obterPorId(@NonNull Long id);
 
-  ProdutoResponse atualizarProduto(Long id, ProdutoRequest request);
+  ProdutoResponse atualizarProduto(@NonNull Long id, ProdutoRequest request);
 
-  void deletarProduto(Long id);
+  void deletarProduto(@NonNull Long id);
 
   // Atualizações parciais
-  ProdutoResponse atualizarDisponibilidade(Long id, AtualizarDisponibilidadeProdutoRequest request);
+  ProdutoResponse atualizarDisponibilidade(@NonNull Long id, AtualizarDisponibilidadeProdutoRequest request);
 
   // Buscas e filtros
   List<ProdutoResponse> findByRestauranteId(Long restauranteId);

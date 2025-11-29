@@ -1,5 +1,9 @@
 package com.deliverytech.delivery.service.impl;
 
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_RESTAURANTE_POR_ID;
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_RESTAURANTES_LISTA;
+import static com.deliverytech.delivery.config.RedisCacheConfig.CACHE_RESTAURANTES_POR_RAMO;
+
 import com.deliverytech.delivery.dto.restaurante.request.AtualizarStatusRestauranteRequest;
 import com.deliverytech.delivery.dto.restaurante.request.RestauranteRequest;
 import com.deliverytech.delivery.dto.restaurante.response.RestauranteResponse;
@@ -11,7 +15,11 @@ import com.deliverytech.delivery.security.SecurityUtils;
 import com.deliverytech.delivery.service.RestauranteService;
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +46,11 @@ public class RestauranteServiceImpl implements RestauranteService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_RESTAURANTE_POR_ID, allEntries = true),
+      @CacheEvict(value = CACHE_RESTAURANTES_LISTA, allEntries = true),
+      @CacheEvict(value = CACHE_RESTAURANTES_POR_RAMO, allEntries = true)
+  })
   public RestauranteResponse criarRestaurante(RestauranteRequest request) {
     var restaurante = new Restaurante();
     restaurante.setNome(request.getNome());
@@ -54,6 +67,7 @@ public class RestauranteServiceImpl implements RestauranteService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(value = CACHE_RESTAURANTES_LISTA, key = "T(java.util.Objects).hash(#ramoAtividade, #ativo)")
   public List<RestauranteResponse> listarTodos(String ramoAtividade, Boolean ativo) {
     List<Restaurante> restaurantes;
 
@@ -85,7 +99,8 @@ public class RestauranteServiceImpl implements RestauranteService {
 
   @Override
   @Transactional(readOnly = true)
-  public RestauranteResponse obterPorId(Long id) {
+  @Cacheable(value = CACHE_RESTAURANTE_POR_ID, key = "#id")
+  public RestauranteResponse obterPorId(@NonNull Long id) {
     var restaurante = restauranteRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, 
@@ -96,6 +111,7 @@ public class RestauranteServiceImpl implements RestauranteService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(value = CACHE_RESTAURANTES_POR_RAMO, key = "#ramoAtividade")
   public List<RestauranteResponse> findByRamoAtividade(String ramoAtividade) {
     return restauranteRepository.findByRamoAtividade(ramoAtividade)
         .stream()
@@ -122,7 +138,12 @@ public class RestauranteServiceImpl implements RestauranteService {
   }
 
   @Override
-  public RestauranteResponse atualizarRestaurante(Long id, RestauranteRequest request) {
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_RESTAURANTE_POR_ID, key = "#id"),
+      @CacheEvict(value = CACHE_RESTAURANTES_LISTA, allEntries = true),
+      @CacheEvict(value = CACHE_RESTAURANTES_POR_RAMO, allEntries = true)
+  })
+  public RestauranteResponse atualizarRestaurante(@NonNull Long id, RestauranteRequest request) {
     var restaurante = restauranteRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,
@@ -167,7 +188,12 @@ public class RestauranteServiceImpl implements RestauranteService {
   }
 
   @Override
-  public RestauranteResponse atualizarStatus(Long id, AtualizarStatusRestauranteRequest request) {
+  @Caching(evict = {
+      @CacheEvict(value = CACHE_RESTAURANTE_POR_ID, key = "#id"),
+      @CacheEvict(value = CACHE_RESTAURANTES_LISTA, allEntries = true),
+      @CacheEvict(value = CACHE_RESTAURANTES_POR_RAMO, allEntries = true)
+  })
+  public RestauranteResponse atualizarStatus(@NonNull Long id, AtualizarStatusRestauranteRequest request) {
     var restaurante = restauranteRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,
@@ -181,7 +207,7 @@ public class RestauranteServiceImpl implements RestauranteService {
 
   @Override
   @Transactional(readOnly = true)
-  public TaxaEntregaResponse calcularTaxaEntrega(Long id, String cep) {
+  public TaxaEntregaResponse calcularTaxaEntrega(@NonNull Long id, String cep) {
     var restaurante = restauranteRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,

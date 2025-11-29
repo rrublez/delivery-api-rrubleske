@@ -21,6 +21,7 @@ Sistema de delivery desenvolvido com **Spring Boot 3.4.11** e **Java 21 LTS**, u
 | **Spring Web** | - | REST API e tratamento HTTP |
 | **Spring Security** | 3.4.11 | Segurança baseada em filtros, BCrypt e `UserDetails` para autenticação |
 | **H2 Database** | - | Banco de dados em memória para desenvolvimento |
+| **Redis** | 7.4 | Cache distribuído para respostas idempotentes (Docker Compose pronto) |
 | **Maven** | 3.6+ | Gerenciador de dependências e build |
 | **Logback** | - | Sistema de logging com rotação automática |
 
@@ -74,6 +75,15 @@ graph TB
 ```
 
   Por trás da camada de controladores existe `SecurityConfig`, que protege a maior parte da API com Spring Security enquanto libera os endpoints públicos (`/api/auth/*`, `/api/restaurantes`, `/api/produtos`, `/actuator/health`, `/actuator/info`). O `AuthController` e `AuthService` estão responsáveis por registrar usuários (`Usuario`) com papéis (`Role`) e validar logins usando `BCryptPasswordEncoder`, alimentando o `UserDetailsService` customizado que faz o match contra o repositório antes de liberar qualquer outro controller.
+
+## ⚡ Cache com Redis
+
+- **Subir infraestrutura**: `docker compose up -d redis` (usa a imagem `redis:7.4-alpine` com senha padrão `deliverytech`). Para desligar, execute `docker compose down`.
+- **Variáveis de ambiente**: personalize via `REDIS_HOST`, `REDIS_PORT` e `REDIS_PASSWORD`. Em desenvolvimento, o padrão é `localhost:6379` com senha `deliverytech`.
+- **Propriedades Spring**: `spring.cache.type=redis` e `spring.data.redis.*` já estão configuradas em `application.yml`. Em testes unitários rápidos usamos cache in-memory (`application-test.yml`) e os testes de integração com Redis sobrescrevem as propriedades via `@DynamicPropertySource`.
+- **Camadas cacheadas**: Produtos (por id, categoria, restaurante e nome) e Restaurantes (listar, por id e por ramo). As escritas invalidam automaticamente os caches relevantes.
+- **Tempo de vida**: 5 a 15 minutos dependendo do cache (`RedisCacheConfig`). Ajuste TTLs conforme necessidade.
+- **Testes de performance**: `mvn test -Dtest="*CacheIntegrationTest"` executa `ProdutoCacheIntegrationTest` e `RestauranteCacheIntegrationTest`, exibindo nos logs o tempo da primeira e segunda chamada para evidenciar o ganho do cache.
 
 ### Fluxo de Requisição HTTP
 

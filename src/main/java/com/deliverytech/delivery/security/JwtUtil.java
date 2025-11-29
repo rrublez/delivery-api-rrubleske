@@ -29,8 +29,8 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long expirationMillis;
 
-    public JwtUtil(@Value("${security.jwt.secret}") String secret,
-                   @Value("${security.jwt.expiration}") long expirationMillis) {
+    public JwtUtil(@Value("${spring.security.jwt.secret}") String secret,
+                   @Value("${spring.security.jwt.expiration}") long expirationMillis) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.expirationMillis = expirationMillis;
     }
